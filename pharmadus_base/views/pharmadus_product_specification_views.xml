@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pharmadus_product_line_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.line.list</field>
+        <field name="model">pharmadus.product.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_line_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.line.form</field>
+        <field name="model">pharmadus.product.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_line" model="ir.actions.act_window">
+        <field name="name">Líneas</field>
+        <field name="res_model">pharmadus.product.line</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pharmadus_product_subline_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.subline.list</field>
+        <field name="model">pharmadus.product.subline</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="line_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_subline_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.subline.form</field>
+        <field name="model">pharmadus.product.subline</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="line_id"/>
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_subline" model="ir.actions.act_window">
+        <field name="name">SubLíneas</field>
+        <field name="res_model">pharmadus.product.subline</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pharmadus_product_packaging_type_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.packaging.type.list</field>
+        <field name="model">pharmadus.product.packaging.type</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_packaging_type_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.packaging.type.form</field>
+        <field name="model">pharmadus.product.packaging.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_packaging_type" model="ir.actions.act_window">
+        <field name="name">Envasados</field>
+        <field name="res_model">pharmadus.product.packaging.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pharmadus_product_base_form_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.base.form.list</field>
+        <field name="model">pharmadus.product.base.form</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_base_form_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.base.form.form</field>
+        <field name="model">pharmadus.product.base.form</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_base_form" model="ir.actions.act_window">
+        <field name="name">Formas base</field>
+        <field name="res_model">pharmadus.product.base.form</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pharmadus_product_garment_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.garment.list</field>
+        <field name="model">pharmadus.product.garment</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_garment_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.garment.form</field>
+        <field name="model">pharmadus.product.garment</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_garment" model="ir.actions.act_window">
+        <field name="name">Vestimentas</field>
+        <field name="res_model">pharmadus.product.garment</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pharmadus_product_purchase_line_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.purchase.line.list</field>
+        <field name="model">pharmadus.product.purchase.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_purchase_line_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.purchase.line.form</field>
+        <field name="model">pharmadus.product.purchase.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_purchase_line" model="ir.actions.act_window">
+        <field name="name">Líneas compras</field>
+        <field name="res_model">pharmadus.product.purchase.line</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pharmadus_product_purchase_subline_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.purchase.subline.list</field>
+        <field name="model">pharmadus.product.purchase.subline</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="line_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_purchase_subline_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.purchase.subline.form</field>
+        <field name="model">pharmadus.product.purchase.subline</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="line_id"/>
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_purchase_subline" model="ir.actions.act_window">
+        <field name="name">Sublíneas compras</field>
+        <field name="res_model">pharmadus.product.purchase.subline</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pharmadus_product_grouping_list" model="ir.ui.view">
+        <field name="name">pharmadus.product.grouping.list</field>
+        <field name="model">pharmadus.product.grouping</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pharmadus_product_grouping_form" model="ir.ui.view">
+        <field name="name">pharmadus.product.grouping.form</field>
+        <field name="model">pharmadus.product.grouping</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pharmadus_product_grouping" model="ir.actions.act_window">
+        <field name="name">Agrupaciones</field>
+        <field name="res_model">pharmadus.product.grouping</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_pharmadus_product_specs_sale"
+        name="Especificaciones"
+        parent="sale.prod_config_main"
+        sequence="90"
+    />
+    <menuitem id="menu_pharmadus_product_line_sale" name="Líneas" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_line" sequence="10"/>
+    <menuitem id="menu_pharmadus_product_subline_sale" name="SubLíneas" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_subline" sequence="20"/>
+    <menuitem id="menu_pharmadus_product_packaging_type_sale" name="Envasados" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_packaging_type" sequence="30"/>
+    <menuitem id="menu_pharmadus_product_base_form_sale" name="Formas base" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_base_form" sequence="40"/>
+    <menuitem id="menu_pharmadus_product_garment_sale" name="Vestimentas" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_garment" sequence="50"/>
+    <menuitem id="menu_pharmadus_product_purchase_line_sale" name="Líneas compras" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_purchase_line" sequence="60"/>
+    <menuitem id="menu_pharmadus_product_purchase_subline_sale" name="Sublíneas compras" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_purchase_subline" sequence="70"/>
+    <menuitem id="menu_pharmadus_product_grouping_sale" name="Agrupaciones" parent="menu_pharmadus_product_specs_sale" action="action_pharmadus_product_grouping" sequence="80"/>
+
+    <menuitem
+        id="menu_pharmadus_product_specs_purchase"
+        name="Especificaciones"
+        parent="purchase.menu_product_in_config_purchase"
+        sequence="90"
+    />
+    <menuitem id="menu_pharmadus_product_line_purchase" name="Líneas" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_line" sequence="10"/>
+    <menuitem id="menu_pharmadus_product_subline_purchase" name="SubLíneas" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_subline" sequence="20"/>
+    <menuitem id="menu_pharmadus_product_packaging_type_purchase" name="Envasados" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_packaging_type" sequence="30"/>
+    <menuitem id="menu_pharmadus_product_base_form_purchase" name="Formas base" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_base_form" sequence="40"/>
+    <menuitem id="menu_pharmadus_product_garment_purchase" name="Vestimentas" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_garment" sequence="50"/>
+    <menuitem id="menu_pharmadus_product_purchase_line_purchase" name="Líneas compras" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_purchase_line" sequence="60"/>
+    <menuitem id="menu_pharmadus_product_purchase_subline_purchase" name="Sublíneas compras" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_purchase_subline" sequence="70"/>
+    <menuitem id="menu_pharmadus_product_grouping_purchase" name="Agrupaciones" parent="menu_pharmadus_product_specs_purchase" action="action_pharmadus_product_grouping" sequence="80"/>
+
+    <menuitem
+        id="menu_pharmadus_product_specs_stock"
+        name="Especificaciones"
+        parent="stock.menu_product_in_config_stock"
+        sequence="90"
+    />
+    <menuitem id="menu_pharmadus_product_line_stock" name="Líneas" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_line" sequence="10"/>
+    <menuitem id="menu_pharmadus_product_subline_stock" name="SubLíneas" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_subline" sequence="20"/>
+    <menuitem id="menu_pharmadus_product_packaging_type_stock" name="Envasados" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_packaging_type" sequence="30"/>
+    <menuitem id="menu_pharmadus_product_base_form_stock" name="Formas base" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_base_form" sequence="40"/>
+    <menuitem id="menu_pharmadus_product_garment_stock" name="Vestimentas" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_garment" sequence="50"/>
+    <menuitem id="menu_pharmadus_product_purchase_line_stock" name="Líneas compras" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_purchase_line" sequence="60"/>
+    <menuitem id="menu_pharmadus_product_purchase_subline_stock" name="Sublíneas compras" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_purchase_subline" sequence="70"/>
+    <menuitem id="menu_pharmadus_product_grouping_stock" name="Agrupaciones" parent="menu_pharmadus_product_specs_stock" action="action_pharmadus_product_grouping" sequence="80"/>
+</odoo>

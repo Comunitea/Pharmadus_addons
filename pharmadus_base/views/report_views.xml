@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_report_view_tree_pharmadus" model="ir.ui.view">
+        <field name="name">sale.report.view.list.pharmadus</field>
+        <field name="model">sale.report</field>
+        <field name="inherit_id" ref="sale.sale_report_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="pharmadus_line_id" optional="show"/>
+                <field name="pharmadus_subline_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_order_product_pivot_pharmadus" model="ir.ui.view">
+        <field name="name">sale.report.pivot.pharmadus</field>
+        <field name="model">sale.report</field>
+        <field name="inherit_id" ref="sale.view_order_product_pivot"/>
+        <field name="arch" type="xml">
+            <field name="date" position="after">
+                <field name="pharmadus_line_id" type="row"/>
+                <field name="pharmadus_subline_id" type="row"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_order_product_search_pharmadus" model="ir.ui.view">
+        <field name="name">sale.report.search.pharmadus</field>
+        <field name="model">sale.report</field>
+        <field name="inherit_id" ref="sale.view_order_product_search"/>
+        <field name="arch" type="xml">
+            <field name="product_tmpl_id" position="after">
+                <field name="pharmadus_line_id"/>
+                <field name="pharmadus_subline_id"/>
+            </field>
+            <filter name="Category" position="after">
+                <filter string="Línea" name="group_by_pharmadus_line" context="{'group_by':'pharmadus_line_id'}"/>
+                <filter string="SubLínea" name="group_by_pharmadus_subline" context="{'group_by':'pharmadus_subline_id'}"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="purchase_report_view_tree_pharmadus" model="ir.ui.view">
+        <field name="name">purchase.report.view.list.pharmadus</field>
+        <field name="model">purchase.report</field>
+        <field name="inherit_id" ref="purchase.purchase_report_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="pharmadus_purchase_line_id" optional="show"/>
+                <field name="pharmadus_purchase_subline_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_pivot_pharmadus" model="ir.ui.view">
+        <field name="name">purchase.report.pivot.pharmadus</field>
+        <field name="model">purchase.report</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_pivot"/>
+        <field name="arch" type="xml">
+            <field name="order_id" position="after">
+                <field name="pharmadus_purchase_line_id" type="row"/>
+                <field name="pharmadus_purchase_subline_id" type="row"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_search_pharmadus" model="ir.ui.view">
+        <field name="name">purchase.report.search.pharmadus</field>
+        <field name="model">purchase.report</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_search"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="pharmadus_purchase_line_id"/>
+                <field name="pharmadus_purchase_subline_id"/>
+            </field>
+            <filter name="group_category_id" position="after">
+                <filter string="Línea compras" name="group_by_pharmadus_purchase_line" context="{'group_by':'pharmadus_purchase_line_id'}"/>
+                <filter string="Sublínea compras" name="group_by_pharmadus_purchase_subline" context="{'group_by':'pharmadus_purchase_subline_id'}"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="account_invoice_report_view_tree_pharmadus" model="ir.ui.view">
+        <field name="name">account.invoice.report.view.list.pharmadus</field>
+        <field name="model">account.invoice.report</field>
+        <field name="inherit_id" ref="account.account_invoice_report_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field
+                    name="pharmadus_line_id"
+                    optional="show"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <field
+                    name="pharmadus_subline_id"
+                    optional="show"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <field
+                    name="pharmadus_purchase_line_id"
+                    optional="show"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+                <field
+                    name="pharmadus_purchase_subline_id"
+                    optional="show"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_invoice_report_pivot_pharmadus" model="ir.ui.view">
+        <field name="name">account.invoice.report.pivot.pharmadus</field>
+        <field name="model">account.invoice.report</field>
+        <field name="inherit_id" ref="account.view_account_invoice_report_pivot"/>
+        <field name="arch" type="xml">
+            <field name="invoice_date" position="after">
+                <field
+                    name="pharmadus_line_id"
+                    type="row"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <field
+                    name="pharmadus_subline_id"
+                    type="row"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <field
+                    name="pharmadus_purchase_line_id"
+                    type="row"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+                <field
+                    name="pharmadus_purchase_subline_id"
+                    type="row"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_invoice_report_search_pharmadus" model="ir.ui.view">
+        <field name="name">account.invoice.report.search.pharmadus</field>
+        <field name="model">account.invoice.report</field>
+        <field name="inherit_id" ref="account.view_account_invoice_report_search"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field
+                    name="pharmadus_line_id"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <field
+                    name="pharmadus_subline_id"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <field
+                    name="pharmadus_purchase_line_id"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+                <field
+                    name="pharmadus_purchase_subline_id"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+            </field>
+            <filter name="category_product" position="after">
+                <filter
+                    string="Línea"
+                    name="group_by_invoice_pharmadus_line"
+                    context="{'group_by':'pharmadus_line_id'}"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <filter
+                    string="SubLínea"
+                    name="group_by_invoice_pharmadus_subline"
+                    context="{'group_by':'pharmadus_subline_id'}"
+                    invisible="context.get('pharmadus_hide_sale_specs')"
+                />
+                <filter
+                    string="Línea compras"
+                    name="group_by_invoice_pharmadus_purchase_line"
+                    context="{'group_by':'pharmadus_purchase_line_id'}"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+                <filter
+                    string="Sublínea compras"
+                    name="group_by_invoice_pharmadus_purchase_subline"
+                    context="{'group_by':'pharmadus_purchase_subline_id'}"
+                    invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+            </filter>
+        </field>
+    </record>
+
+    <record id="account.action_account_invoice_report_all" model="ir.actions.act_window">
+        <field name="context">
+            {'search_default_current':1, 'search_default_customer': 1, 'group_by':['invoice_date:month'], 'pharmadus_hide_purchase_specs': True}
+        </field>
+    </record>
+
+    <record id="account.action_account_invoice_report_all_supp" model="ir.actions.act_window">
+        <field name="context">
+            {'search_default_current':1, 'search_default_supplier': 1, 'group_by':['invoice_date:month'], 'pharmadus_hide_sale_specs': True}
+        </field>
+    </record>
+</odoo>

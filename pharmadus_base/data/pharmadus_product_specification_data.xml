@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="pharmadus_product_garment_vestida" model="pharmadus.product.garment">
+        <field name="name">Vestida</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="pharmadus_product_garment_desnuda" model="pharmadus.product.garment">
+        <field name="name">Desnuda</field>
+        <field name="sequence">10</field>
+    </record>
+</odoo>

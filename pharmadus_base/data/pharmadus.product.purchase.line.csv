@@ -1,0 +1,7 @@
+"id","name","company_id/id"
+"pharmadus_purchase_line_ph_pro","PH - Pro","base.main_company"
+"pharmadus_purchase_line_ph_mark","PH - Mark","base.main_company"
+"pharmadus_purchase_line_ph_dep","PH - Dep","base.main_company"
+"pharmadus_purchase_line_ph_mant","PH - Mant","base.main_company"
+"pharmadus_purchase_line_ph_info","PH - Info","base.main_company"
+"pharmadus_purchase_line_ph_estru","PH - Estru","base.main_company"
