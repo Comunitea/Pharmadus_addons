@@ -1,0 +1,16 @@
+{
+  "source": {
+    "url": "https://odoo8.example.com",
+    "db": "odoo8_db",
+    "username": "admin",
+    "password": "change-me",
+    "verify_ssl": true
+  },
+  "target": {
+    "url": "https://odoo18.example.com",
+    "db": "odoo18_db",
+    "username": "admin",
+    "password": "change-me",
+    "verify_ssl": true
+  }
+}
