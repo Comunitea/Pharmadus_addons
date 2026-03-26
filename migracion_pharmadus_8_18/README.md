@@ -7,6 +7,8 @@ Utilidades de consola para migrar datos de Pharmadus desde Odoo 8 hacia Odoo 18 
 - `config.example.json`: ejemplo de configuración para conexiones origen y destino.
 - `scripts/odoo_xmlrpc.py`: cliente XML-RPC reutilizable.
 - `scripts/migrate_product_specifications.py`: primer script para migrar los campos de la pestaña "Especificaciones" de `product.template`.
+- `scripts/migrate_product_extra_categories.py`: inspecciona las categorías extra de Odoo 8 (`categ_ids`) y muestra por pantalla las ramas bajo `NoContable`.
+  Excluye `Para_Comisiones`, `Farmacia` y `Horeca`.
 
 ## Requisitos
 
