@@ -8,11 +8,20 @@
     "website": "https://github.com/Ipharmadus/odoo",
     "author": "Ipharmadus",
     "license": "AGPL-3",
-    "depends": ["base", "mail", "sale", "purchase", "stock", "account"],
+    "depends": [
+        "base",
+        "mail",
+        "sale",
+        "purchase",
+        "purchase_requisition",
+        "stock",
+        "account",
+    ],
     "data": [
         "security/ir.model.access.csv",
         "views/pharmadus_product_specification_views.xml",
         "views/product_template_views.xml",
+        "views/purchase_requisition_views.xml",
         "views/report_views.xml",
         "data/pharmadus.product.line.csv",
         "data/pharmadus.product.subline.csv",
@@ -23,6 +32,11 @@
         "data/pharmadus.product.grouping.csv",
         "data/pharmadus_product_specification_data.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "pharmadus_base/static/src/stock_forecasted/forecasted_details.xml",
+        ],
+    },
     "installable": True,
     "application": False,
 }

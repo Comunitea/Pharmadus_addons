@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_requisition_form_pharmadus_name_editable" model="ir.ui.view">
+        <field name="name">purchase.requisition.form.pharmadus.name.editable</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="readonly">not id</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

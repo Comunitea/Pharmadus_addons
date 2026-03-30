@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="stock.ForecastedDetails" t-inherit-mode="extension">
+        <xpath expr="//a[@t-if='line.document_in']" position="after">
+            <span
+                t-if="line.document_in and line.document_in.partner_name"
+                t-out="' - ' + line.document_in.partner_name"
+            />
+            <span
+                t-if="line.document_in and line.document_in.product_name"
+                t-out="' (' + line.document_in.product_name + ')'"
+            />
+        </xpath>
+        <xpath expr="//a[@t-if='line.document_out']" position="after">
+            <span
+                t-if="line.document_out and line.document_out.partner_name"
+                t-out="' - ' + line.document_out.partner_name"
+            />
+            <span
+                t-if="line.document_out and line.document_out.product_name"
+                t-out="' (' + line.document_out.product_name + ')'"
+            />
+        </xpath>
+    </t>
+</templates>
