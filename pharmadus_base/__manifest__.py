@@ -6,7 +6,7 @@
     "version": "18.0.1.0.0",
     "category": "Hidden",
     "website": "https://github.com/Ipharmadus/odoo",
-    "author": "Ipharmadus",
+    "author": "Pharmadus Botanicals",
     "license": "AGPL-3",
     "depends": [
         "base",

@@ -6,6 +6,32 @@ from odoo import models
 class StockForecasted(models.AbstractModel):
     _inherit = "stock.forecasted_product_product"
 
+    def _enrich_purchase_orders_with_partner(self, purchase_orders_data):
+        # purchase_stock only exposes RFQ ids/names in the forecast header, so we
+        # enrich those records here to render the vendor in the summary row.
+        if not purchase_orders_data:
+            return purchase_orders_data
+
+        order_ids = [purchase_order["id"] for purchase_order in purchase_orders_data]
+        orders_by_id = {
+            order.id: order
+            for order in self.env["purchase.order"].browse(order_ids).exists()
+        }
+        for purchase_order in purchase_orders_data:
+            order = orders_by_id.get(purchase_order["id"])
+            if order and order.partner_id:
+                purchase_order["partner_name"] = order.partner_id.display_name
+        return purchase_orders_data
+
+    def _get_report_header(self, product_template_ids, product_ids, wh_location_ids):
+        res = super()._get_report_header(
+            product_template_ids, product_ids, wh_location_ids
+        )
+        for key in ("draft_purchase_orders", "no_delivery_purchase_orders"):
+            if key in res:
+                res[key] = self._enrich_purchase_orders_with_partner(res[key])
+        return res
+
     def _get_forecast_document_data(self, document):
         if not document:
             return False
