@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sequence_sale_transfer" model="ir.sequence">
+        <field name="name">Sale Transfer</field>
+        <field name="code">sale.transfer</field>
+        <field name="prefix">TR/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="action_report_saletransfer" model="ir.actions.report">
+        <field name="name">Sale Transfer</field>
+        <field name="model">sale.transfer</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pharmadus_base.report_saletransfer</field>
+        <field name="report_file">pharmadus_base.report_saletransfer</field>
+        <field name="print_report_name">'Transfer - %s' % (object.id)</field>
+        <field name="binding_model_id" ref="pharmadus_base.model_sale_transfer"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="mail_template_sale_transfer_confirmation" model="mail.template">
+        <field name="name">Sale Transfer: Confirmation</field>
+        <field name="model_id" ref="pharmadus_base.model_sale_transfer"/>
+        <field name="subject">{{ object.company_id.name }} Transfer (Ref {{ object.id or 'n/a' }})</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="description">Sent to customers on sale transfer confirmation</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 12px;">
+        Hola:,
+        <br/><br/>
+        Su presupuesto SO{{ object.id or 'n/a' }}  está disponible para su revisión.
+        <br/><br/>
+        <table width="100%" style="color: #454748; font-size: 12px; border-collapse: collapse; white-space: nowrap;">
+            <tr style="border-bottom: 2px solid #dee2e6;">
+                <td style="width: 150px;"><span style="font-weight:bold;">Product</span></td>
+                <td width="15%" align="center"><span style="font-weight:bold;">Quantity</span></td>
+                <td width="20%" align="center"><span style="font-weight:bold;">UoM</span></td>
+            </tr>
+            <t t-foreach="object.order_line" t-as="line">
+                <t t-if="not line.display_type">
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td><span t-out="line.product_id.display_name or ''"/></td>
+                        <td align="center"><span t-out="line.product_uom_qty or ''"/></td>
+                        <td align="center"><span t-out="line.product_uom.name or ''"/></td>
+                    </tr>
+                </t>
+            </t>
+        </table>
+        <br/>
+        No dude en ponerse en contacto con nosotros si tiene alguna pregunta.
+        <br/><br/>
+    </p>
+</div>
+        </field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="report_template_ids" eval="[(4, ref('pharmadus_base.action_report_saletransfer'))]"/>
+    </record>
+
+</odoo>
