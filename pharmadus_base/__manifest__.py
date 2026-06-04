@@ -16,6 +16,7 @@
         "purchase_requisition",
         "stock",
         "account",
+        "stock_account",
     ],
     "data": [
         "security/ir.model.access.csv",
@@ -23,6 +24,7 @@
         "views/product_template_views.xml",
         "views/purchase_requisition_views.xml",
         "views/report_views.xml",
+        "report/purchase_order_templates.xml",
         "data/pharmadus.product.line.csv",
         "data/pharmadus.product.subline.csv",
         "data/pharmadus.product.purchase.line.csv",
