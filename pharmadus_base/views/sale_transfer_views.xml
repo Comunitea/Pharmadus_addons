@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="sale_transfer_view_list" model="ir.ui.view">
+        <field name="name">sale.transfer.list</field>
+        <field name="model">sale.transfer</field>
+        <field name="arch" type="xml">
+            <list string="Sale Transfers">
+                <field name="name" string="Número"/>
+                <field name="date_order"/>
+                <field name="partner_id"/>
+                <field name="cooperative_id"/>
+                <field name="partner_shipping_id"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="sale_transfer_view_form" model="ir.ui.view">
+        <field name="name">sale.transfer.form</field>
+        <field name="model">sale.transfer</field>
+        <field name="arch" type="xml">
+            <form string="Pedido Transfer">
+                <header>
+                    <button name="action_quotation_send" type="object" string="Enviar por correo electrónico" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group name="transfer_header">
+                        <group name="partner_details">
+                            <field name="partner_id"
+                                   context="{'res_partner_search_mode': 'customer', 'show_address': 1}"
+                                   placeholder="Type to find a customer..."/>
+                            <field name="cooperative_id"
+                                   context="{'show_address': 1}"
+                                   placeholder="Type to find a cooperative..."/>
+                            <field name="partner_shipping_id"
+                                   options="{'no_quick_create': True}"
+                                   context="{'default_type': 'delivery', 'show_address': False}"/>
+                        </group>
+                        <group name="order_details">
+                            <field name="date_order"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Líneas de Pedido" name="order_lines">
+                            <field name="order_line">
+                                <list editable="bottom">
+                                    <control>
+                                        <create name="add_product_control" string="Añadir un producto"/>
+                                        <create name="add_section_control" string="Añadir una sección" context="{'default_display_type': 'line_section'}"/>
+                                        <create name="add_note_control" string="Añadir una nota" context="{'default_display_type': 'line_note'}"/>
+                                    </control>
+                                    <field name="product_template_id"  widget="sol_product_many2one" options="{'no_open': True}" placeholder="Type to find a product..."/>
+                                    <field name="product_uom_qty"/>
+                                    <field name="product_uom" options="{'no_open': True}" force_save="1"/>
+                                    <field name="company_id" column_invisible="True"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="product_template_id"/>
+                                        <field name="product_id"/>
+                                        <field name="product_uom"/>
+                                        <field name="product_uom_qty"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="sale_transfer_view_search" model="ir.ui.view">
+        <field name="name">sale.transfer.search</field>
+        <field name="model">sale.transfer</field>
+        <field name="arch" type="xml">
+            <search string="Search Sale Transfers">
+                <field name="name" string="Número"/>
+                <field name="partner_id" operator="child_of"/>
+                <field name="cooperative_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Customer" name="customer"
+                            domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Cooperative" name="cooperative"
+                            domain="[]" context="{'group_by': 'cooperative_id'}"/>
+                    <filter string="Order Date" name="order_date"
+                            domain="[]" context="{'group_by': 'date_order'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- ACTION -->
+    <record id="sale_transfer_action" model="ir.actions.act_window">
+        <field name="name">Sale Transfers</field>
+        <field name="res_model">sale.transfer</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sale_transfer_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new sale transfer.
+            </p>
+        </field>
+    </record>
+
+    <!-- MENU -->
+    <menuitem id="menu_sale_transfer"
+        name="Pedido Transfer"
+        parent="sale.sale_order_menu"
+        action="sale_transfer_action"
+        sequence="50"/>
+
+
+</odoo>
