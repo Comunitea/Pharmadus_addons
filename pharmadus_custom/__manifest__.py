@@ -8,9 +8,11 @@
     "author": "Pharmadus Botanicals",
     "license": "AGPL-3",
     "depends": [
+        "sale",
         "stock",
     ],
     "data": [
+        "views/sale_order_views.xml",
         "views/stock_lot_views.xml",
     ],
     "installable": True,
