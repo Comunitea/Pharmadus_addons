@@ -208,7 +208,7 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Local migration credentials
+# Credenciales para la migración de datos
 /migracion_pharmadus_8_18/config.json
 
 # Codex de ChatGPT
