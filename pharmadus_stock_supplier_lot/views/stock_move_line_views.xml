@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Añade columna "Lote de proveedor" en la tabla de líneas de operación
+         del albarán (usada durante la recepción con auto_create_lot).
+         La columna se muestra solo cuando el producto tiene trazabilidad por lote
+         y el tipo de operación usa creación de lotes (misma condición que lot_name). -->
+    <record id="view_stock_move_line_operation_tree_supplier_lot" model="ir.ui.view">
+        <field name="name">stock.move.line.operations.list.supplier.lot</field>
+        <field name="model">stock.move.line</field>
+        <field name="inherit_id" ref="stock.view_stock_move_line_operation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lot_name']" position="after">
+                <field name="supplier_lot_ref"
+                       string="Lote de proveedor"
+                       groups="stock.group_production_lot"
+                       column_invisible="parent.has_tracking == 'none' or not parent.show_lots_text"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

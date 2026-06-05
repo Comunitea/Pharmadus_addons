@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Restringir las direcciones de entrega a los hijos del commercial_partner del cliente -->
+    <!-- Mover client_order_ref desde la pestaña Otra información a la cabecera -->
+    <record id="view_order_form_custom_shipping_domain" model="ir.ui.view">
+        <field name="name">sale.order.form.custom.shipping.domain</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_shipping_id" position="attributes">
+                <attribute name="domain">[('id', 'child_of', partner_id.commercial_partner_id)]</attribute>
+            </field>
+            <!-- Campo pending_confirmation disponible en la vista -->
+            <field name="locked" position="after">
+                <field name="pending_confirmation" invisible="1"/>
+                <field name="blocked" invisible="1"/>
+            </field>
+            <!-- Añadir client_order_ref al final del grupo de cabecera (order_details) -->
+            <field name="payment_term_id" position="after">
+                <field name="client_order_ref"/>
+            </field>
+            <!-- Eliminar client_order_ref de la pestaña Otra información -->
+            <field name="client_order_ref" position="replace"/>
+            <!-- Botones "Pedido Bloqueado", "Pendiente de confirmar" / "Quitar pendiente", visibles solo en borrador -->
+            <button id="action_confirm" position="before">
+                <button name="action_set_blocked"
+                    string="Bloquear pedido"
+                    type="object"
+                    class="btn-danger"
+                    invisible="state != 'draft' or blocked"/>
+                <button name="action_set_pending_confirmation"
+                    string="Pendiente de confirmar"
+                    type="object"
+                    class="btn-warning"
+                    invisible="state != 'draft' or pending_confirmation"/>
+                <button name="action_unset_pending_confirmation"
+                    string="Quitar pendiente de confirmar"
+                    type="object"
+                    class="btn-secondary"
+                    invisible="state != 'draft' or not pending_confirmation"/>
+            </button>
+        </field>
+    </record>
+
+    <!-- Filtro "Pendiente de confirmar" en la vista de búsqueda de presupuestos -->
+    <record id="sale_order_view_search_pending_confirmation" model="ir.ui.view">
+        <field name="name">sale.order.search.pending.confirmation</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+        <field name="arch" type="xml">
+            <filter name="draft" position="after">
+                <filter name="pending_confirmation"
+                    string="Pendiente de confirmar"
+                    domain="[('state', 'in', ('draft', 'sent')), ('pending_confirmation', '=', True), ('blocked', '=', False)]"/>
+                <filter name="blocked_quotations"
+                    string="Pedidos Bloqueados"
+                    domain="[('state', 'in', ('draft', 'sent')), ('blocked', '=', True)]"/>
+            </filter>
+        </field>
+    </record>
+</odoo>

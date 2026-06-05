@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Stock Lot Form View -->
+    <record id="view_production_lot_form_state" model="ir.ui.view">
+        <field name="name">stock.lot.form.state</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <!-- Add header with state and buttons -->
+            <xpath expr="//form/sheet" position="before">
+                <header>
+                    <button
+                        name="action_set_approved"
+                        string="Aprobar"
+                        type="object"
+                        invisible="state == 'approved'"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_set_rejected"
+                        string="Rechazar"
+                        type="object"
+                        invisible="state == 'rejected'"
+                        class="btn-danger"
+                    />
+                    <button
+                        name="action_set_pending"
+                        string="Pendiente"
+                        type="object"
+                        invisible="state == 'pending'"
+                    />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="pending,approved,rejected"/>
+                </header>
+            </xpath>
+            
+            <!-- Make fields readonly when approved or rejected -->
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='product_id']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected') or context.get('set_product_readonly', False)</attribute>
+            </xpath>
+            <xpath expr="//field[@name='ref']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='company_id']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='location_id']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='lot_properties']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='note']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            
+            <!-- Add approval tracking fields -->
+            <xpath expr="//group[@name='main_group']" position="after">
+                <group name="review_info" invisible="state != 'approved'">
+                    <group>
+                        <field name="approved_by"/>
+                        <field name="approved_date"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Lot Tree View -->
+    <record id="view_production_lot_tree_state" model="ir.ui.view">
+        <field name="name">stock.lot.tree.state</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="decoration-muted">state == 'pending'</attribute>
+                <attribute name="decoration-success">state == 'approved'</attribute>
+                <attribute name="decoration-danger">state == 'rejected'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="state"/>
+            </xpath>
+            <xpath expr="//field[@name='expiration_date']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//field[@name='alert_date']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Lot Search View -->
+    <record id="view_production_lot_search_state" model="ir.ui.view">
+        <field name="name">stock.lot.search.state</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='on_hand']" position="after">
+                <separator/>
+                <filter
+                    name="filter_pending"
+                    string="Pendiente"
+                    domain="[('state', '=', 'pending')]"
+                />
+                <filter
+                    name="filter_approved"
+                    string="Aprobado"
+                    domain="[('state', '=', 'approved')]"
+                />
+                <filter
+                    name="filter_rejected"
+                    string="Rechazado"
+                    domain="[('state', '=', 'rejected')]"
+                />
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter 
+                    name="group_by_state" 
+                    string="State" 
+                    context="{'group_by': 'state'}"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Lot Form View - Expiry Dates -->
+    <record id="view_production_lot_form_state_expiry" model="ir.ui.view">
+        <field name="name">stock.lot.form.state.expiry</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="product_expiry.view_move_form_expiry"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='expiration_date']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='removal_date']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='use_date']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='alert_date']" position="attributes">
+                <attribute name="readonly">state in ('approved', 'rejected')</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
