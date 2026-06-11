@@ -3,5 +3,6 @@
 from . import pharmadus_product_specification
 from . import purchase_requisition
 from . import product_template
+from . import stock_lot
 from . import stock_forecasted
 from . import stock_valuation_layer

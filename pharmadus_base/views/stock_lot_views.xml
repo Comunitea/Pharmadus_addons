@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_lot_form_pharmadus_reception" model="ir.ui.view">
+        <field name="name">stock.lot.form.pharmadus.reception</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="pharmadus_reception" string="Recepción">
+                    <group>
+                        <group>
+                            <field name="pharmadus_packaging_type_id"/>
+                            <field name="pharmadus_package_count"/>
+                            <field name="pharmadus_pallet_count"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

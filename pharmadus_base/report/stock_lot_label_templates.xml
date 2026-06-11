@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_lot_labels_pharmadus" model="report.paperformat">
+        <field name="name">Pharmadus Lot Labels</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">148</field>
+        <field name="page_width">105</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">0</field>
+        <field name="margin_bottom">0</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True"/>
+        <field name="dpi">90</field>
+    </record>
+
+    <template id="report_lot_labels">
+        <t t-call="web.html_container">
+            <style type="text/css">
+                html,
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+                p {
+                    margin: 0;
+                    padding: 0;
+                }
+                .pharmadus-lot-label {
+                    box-sizing: border-box;
+                    height: 90mm;
+                    overflow: hidden;
+                    padding: 2mm 14mm 2mm 6mm;
+                    page-break-inside: avoid;
+                    width: 148mm;
+                }
+                .pharmadus-lot-label--break-before {
+                    page-break-before: always;
+                }
+                .pharmadus-lot-label__content {
+                    margin: 0 auto;
+                    page-break-inside: avoid;
+                    width: 126mm;
+                }
+                .pharmadus-lot-label__logo {
+                    height: 14mm;
+                    text-align: right;
+                }
+                .pharmadus-lot-label__logo img {
+                    max-height: 13mm;
+                    max-width: 42mm;
+                }
+                .pharmadus-lot-label__partner {
+                    font-size: 17px;
+                    font-weight: 700;
+                    line-height: 1.05;
+                    max-height: 9mm;
+                    overflow: hidden;
+                }
+                .pharmadus-lot-label__supplier-lot {
+                    font-size: 17px;
+                    font-weight: 700;
+                    line-height: 1.05;
+                    max-height: 9mm;
+                    min-height: 5mm;
+                    overflow: hidden;
+                }
+                .pharmadus-lot-label__block {
+                    margin-top: 3mm;
+                    page-break-inside: avoid;
+                }
+                .pharmadus-lot-label__barcode {
+                    display: block;
+                    height: 11mm;
+                    margin: 0 auto;
+                    width: 126mm;
+                }
+                .pharmadus-lot-label__caption {
+                    font-size: 11px;
+                    line-height: 1.1;
+                    margin-top: 0.8mm;
+                    text-align: center;
+                }
+                .pharmadus-lot-label__product {
+                    font-size: 16px;
+                    font-weight: 700;
+                    line-height: 1.05;
+                    margin-top: 1.2mm;
+                    max-height: 10mm;
+                    overflow: hidden;
+                    text-align: center;
+                }
+                .pharmadus-lot-label__lot {
+                    font-size: 45px;
+                    line-height: 0.95;
+                    margin-top: 0.8mm;
+                    max-height: 18mm;
+                    overflow: hidden;
+                    text-align: center;
+                }
+            </style>
+            <t t-set="has_previous_label" t-value="False"/>
+            <t t-foreach="docs" t-as="picking">
+                <t
+                    t-set="lots"
+                    t-value="picking.move_line_ids.filtered(lambda ml: ml.lot_id and ml.quantity &gt; 0).mapped('lot_id').sorted(key=lambda lot: (lot.product_id.display_name or '', lot.name or ''))"
+                />
+                <t t-foreach="lots" t-as="lot">
+                    <t t-set="labels_to_print" t-value="lot._pharmadus_get_labels_to_print()"/>
+                    <t t-foreach="range(labels_to_print)" t-as="label_index">
+                        <div t-att-class="'pharmadus-lot-label%s' % (' pharmadus-lot-label--break-before' if has_previous_label else '')">
+                            <div class="pharmadus-lot-label__content">
+                                <div class="pharmadus-lot-label__logo">
+                                    <img
+                                        t-if="picking.company_id.logo"
+                                        t-att-src="image_data_uri(picking.company_id.logo)"
+                                        alt="Logo"
+                                    />
+                                </div>
+
+                                <div>
+                                    <p class="pharmadus-lot-label__partner" t-out="picking.partner_id.display_name or ''"/>
+                                    <p class="pharmadus-lot-label__supplier-lot" t-out="lot.ref or ''"/>
+                                </div>
+
+                                <div class="pharmadus-lot-label__block">
+                                    <t t-set="product_barcode" t-value="(lot.product_id.default_code or '').replace('-', '/')"/>
+                                    <t t-if="product_barcode">
+                                        <span
+                                            class="pharmadus-lot-label__barcode"
+                                            t-out="product_barcode"
+                                            t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 1200, 'height': 120, 'quiet': 0, 'img_style': 'display:block;width:126mm;height:11mm;'}"
+                                        />
+                                        <div class="pharmadus-lot-label__caption" t-out="lot.product_id.default_code or ''"/>
+                                        <div class="pharmadus-lot-label__product" t-out="lot.product_id.name or ''"/>
+                                    </t>
+                                </div>
+
+                                <div class="pharmadus-lot-label__block">
+                                    <t t-set="lot_barcode" t-value="(lot.name or '').replace('-', '/')"/>
+                                    <span
+                                        class="pharmadus-lot-label__barcode"
+                                        t-out="lot_barcode"
+                                        t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 1200, 'height': 120, 'quiet': 0, 'img_style': 'display:block;width:126mm;height:11mm;'}"
+                                    />
+                                    <div class="pharmadus-lot-label__lot" t-out="lot.name or ''"/>
+                                </div>
+                            </div>
+                        </div>
+                        <t t-set="has_previous_label" t-value="True"/>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_lot_labels" model="ir.actions.report">
+        <field name="name">Etiquetas de lotes</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pharmadus_base.report_lot_labels</field>
+        <field name="report_file">pharmadus_base.report_lot_labels</field>
+        <field name="paperformat_id" ref="pharmadus_base.paperformat_lot_labels_pharmadus"/>
+        <field name="print_report_name">'Etiquetas de lotes - %s' % (object.name)</field>
+        <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
