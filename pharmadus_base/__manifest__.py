@@ -25,6 +25,7 @@
         "views/purchase_requisition_views.xml",
         "views/stock_lot_views.xml",
         "views/report_views.xml",
+        "views/sale_transfer_views.xml",
         "report/purchase_order_templates.xml",
         "report/stock_lot_label_templates.xml",
         "views/stock_picking_views.xml",
@@ -36,6 +37,8 @@
         "data/pharmadus.product.base.form.csv",
         "data/pharmadus.product.grouping.csv",
         "data/pharmadus_product_specification_data.xml",
+        "report/sale_transfer_report_templates.xml",
+        "data/mail_template_sale_transfer.xml",
     ],
     "assets": {
         "web.assets_backend": [

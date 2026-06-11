@@ -5,4 +5,5 @@ from . import purchase_requisition
 from . import product_template
 from . import stock_lot
 from . import stock_forecasted
+from . import sale_transfer
 from . import stock_valuation_layer
