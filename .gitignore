@@ -210,6 +210,3 @@ __marimo__/
 
 # Credenciales para la migración de datos
 /migracion_pharmadus_8_18/config.json
-
-# Codex de ChatGPT
-.codex

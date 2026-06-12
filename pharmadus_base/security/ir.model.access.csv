@@ -15,5 +15,12 @@ access_pharmadus_product_purchase_subline_user,pharmadus.product.purchase.sublin
 access_pharmadus_product_purchase_subline_manager,pharmadus.product.purchase.subline.manager,model_pharmadus_product_purchase_subline,product.group_product_manager,1,1,1,1
 access_pharmadus_product_grouping_user,pharmadus.product.grouping.user,model_pharmadus_product_grouping,base.group_user,1,0,0,0
 access_pharmadus_product_grouping_manager,pharmadus.product.grouping.manager,model_pharmadus_product_grouping,product.group_product_manager,1,1,1,1
-pharmadus_base.access_sale_transfer,access_sale_transfer,pharmadus_base.model_sale_transfer,base.group_user,1,1,1,1
-pharmadus_base.access_sale_transfer_line,access_sale_transfer_line,pharmadus_base.model_sale_transfer_line,base.group_user,1,1,1,1
+
+# Sale Transfer (custom model) access rules
+# Models are: sale.transfer and sale.transfer.line
+pharmadus_base.access_sale_transfer,access_sale_transfer,sale.transfer,base.group_user,1,1,1,1
+pharmadus_base.access_sale_transfer_line,access_sale_transfer_line,sale.transfer.line,base.group_user,1,1,1,1
+
+# Security rules for stock lot creation wizard
+access_stock_lot_creation_wizard_user,stock.lot.creation.wizard.user,model_stock_lot_creation_wizard,base.group_user,1,0,0,0
+access_stock_lot_creation_wizard_manager,stock.lot.creation.wizard.manager,model_stock_lot_creation_wizard,product.group_product_manager,1,1,1,1

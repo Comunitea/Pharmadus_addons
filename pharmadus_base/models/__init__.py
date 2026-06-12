@@ -7,3 +7,5 @@ from . import stock_lot
 from . import stock_forecasted
 from . import sale_transfer
 from . import stock_valuation_layer
+# Import the wizard module to register it with Odoo
+from . import stock_lot_wizard

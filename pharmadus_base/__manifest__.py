@@ -39,6 +39,8 @@
         "data/pharmadus_product_specification_data.xml",
         "report/sale_transfer_report_templates.xml",
         "data/mail_template_sale_transfer.xml",
+        # Add our new wizard view
+        "views/stock_lot_wizard_views.xml",
     ],
     "assets": {
         "web.assets_backend": [
