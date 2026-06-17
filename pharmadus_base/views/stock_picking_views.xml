@@ -10,7 +10,7 @@
                     name="%(action_report_lot_labels)d"
                     string="Imprimir etiquetas de lotes"
                     type="action"
-                    groups="product.group_product_user,base.group_multi_company"
+                    groups="stock.group_stock_user"
                     invisible="picking_type_code != 'incoming' or state in ('draft', 'cancel') or not lot_id"
                 />
             </xpath>

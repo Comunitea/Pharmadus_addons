@@ -11,15 +11,18 @@
     "depends": [
         "base",
         "mail",
+        "sales_team",
         "sale",
         "purchase",
         "purchase_requisition",
         "stock",
+        "product_expiry",
         "account",
         "stock_account",
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/ir_rule.xml",
         "views/pharmadus_product_specification_views.xml",
         "views/product_template_views.xml",
         "views/purchase_requisition_views.xml",
@@ -36,10 +39,10 @@
         "data/pharmadus.product.packaging.type.csv",
         "data/pharmadus.product.base.form.csv",
         "data/pharmadus.product.grouping.csv",
+        "data/catalog_seed_noupdate.xml",
         "data/pharmadus_product_specification_data.xml",
         "report/sale_transfer_report_templates.xml",
         "data/mail_template_sale_transfer.xml",
-        # Add our new wizard view
         "views/stock_lot_wizard_views.xml",
     ],
     "assets": {

@@ -44,7 +44,7 @@ Technical Details
 -----------------
 
 Module Structure
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 The module follows Odoo's standard structure with the following key components:
 

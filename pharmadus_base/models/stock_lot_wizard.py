@@ -1,13 +1,12 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models, api
-from odoo.exceptions import UserError
+from odoo import api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 class StockLotCreationWizard(models.TransientModel):
     _name = 'stock.lot.creation.wizard'
     _description = 'Stock Lot Creation Wizard'
 
-    # Fields for the wizard
     lot_name = fields.Char(string='Lote', required=True)
     product_id = fields.Many2one(comodel_name='product.product',
                                 string='Producto', required=True,
@@ -20,24 +19,55 @@ class StockLotCreationWizard(models.TransientModel):
     package_count = fields.Integer(string="Nº de envases")
     pallet_count = fields.Integer(string="Nº de pallets")
 
-    # Reference to the stock move that triggered this wizard
     source_move_id = fields.Many2one(comodel_name='stock.move',
                                     string='Movimiento de origen')
+
+    source_picking_id = fields.Many2one(
+        comodel_name='stock.picking',
+        string='Albarán de origen',
+    )
+
+    def _get_default_source_move(self):
+        active_model = self._context.get('active_model')
+        active_id = self._context.get('active_id')
+        if not active_id:
+            return self.env['stock.move']
+        if active_model == 'stock.move':
+            return self.env['stock.move'].browse(active_id).exists()
+        if active_model == 'stock.picking':
+            picking = self.env['stock.picking'].browse(active_id).exists()
+            moves = picking.move_ids.filtered(
+                lambda move: move.product_id and any(
+                    not line.lot_id for line in move.move_line_ids
+                )
+            )
+            return moves[:1]
+        return self.env['stock.move']
+
+    @api.constrains('package_count', 'pallet_count')
+    def _check_non_negative_counts(self):
+        for wizard in self:
+            if wizard.package_count < 0:
+                raise ValidationError("El número de envases no puede ser negativo.")
+            if wizard.pallet_count < 0:
+                raise ValidationError("El número de pallets no puede ser negativo.")
 
     @api.model
     def _default_product(self):
         """Get the product from the context"""
-        if self._context.get('active_model') == 'stock.move' and self._context.get('active_id'):
-            move = self.env['stock.move'].browse(self._context['active_id'])
-            return move.product_id.id
-        return False
+        return self._get_default_source_move().product_id.id or False
 
     def create_lot_and_assign(self):
         """Create a new lot based on product configuration and assign to source move"""
         if not self.source_move_id:
             raise UserError("No se encontró el movimiento de origen")
+        if self.source_move_id.product_id != self.product_id:
+            raise UserError("El producto debe coincidir con el movimiento de origen")
+        if self.source_picking_id and self.source_picking_id != self.source_move_id.picking_id:
+            raise UserError("El albarán debe coincidir con el movimiento de origen")
+        if self.source_move_id.picking_id.picking_type_code != 'incoming':
+            raise UserError("Solo se pueden crear lotes desde recepciones")
 
-        # Create the new lot
         lot_values = {
             'name': self.lot_name,
             'product_id': self.product_id.id,
@@ -47,12 +77,10 @@ class StockLotCreationWizard(models.TransientModel):
             'pharmadus_pallet_count': self.pallet_count
         }
 
-        # Remove None values to avoid validation errors
         lot_values = {k: v for k, v in lot_values.items() if v is not None}
 
         new_lot = self.env['stock.lot'].create(lot_values)
 
-        # Assign the lot to the source move
         moves_to_update = self.source_move_id.mapped('move_line_ids').filtered(
             lambda line: not line.lot_id and line.product_id == self.product_id
         )
@@ -60,7 +88,6 @@ class StockLotCreationWizard(models.TransientModel):
         if not moves_to_update:
             raise UserError("No se encontraron líneas de movimiento sin lote asignado")
 
-        # Assign the new lot to all matching move lines
         for move_line in moves_to_update:
             move_line.write({'lot_id': new_lot.id})
 
@@ -72,15 +99,11 @@ class StockLotCreationWizard(models.TransientModel):
     def default_get(self, fields):
         """Set default values based on context"""
         res = super(StockLotCreationWizard, self).default_get(fields)
-        if self._context.get('active_model') == 'stock.move' and self._context.get('active_id'):
-            move = self.env['stock.move'].browse(self._context['active_id'])
+        move = self._get_default_source_move()
+        if move:
             res.update({
                 'source_move_id': move.id,
-                'product_id': move.product_id.id
+                'source_picking_id': move.picking_id.id,
+                'product_id': move.product_id.id,
             })
         return res
-
-# Error handling for missing dependencies
-class UserError(Exception):
-    """Custom user error class"""
-    pass

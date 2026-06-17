@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_sale_transfer_company" model="ir.rule">
+        <field name="name">Sale transfers by company</field>
+        <field name="model_id" ref="model_sale_transfer"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_sale_transfer_line_company" model="ir.rule">
+        <field name="name">Sale transfer lines by company</field>
+        <field name="model_id" ref="model_sale_transfer_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_line_company" model="ir.rule">
+        <field name="name">Product lines by company</field>
+        <field name="model_id" ref="model_pharmadus_product_line"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_subline_company" model="ir.rule">
+        <field name="name">Product sublines by company</field>
+        <field name="model_id" ref="model_pharmadus_product_subline"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_packaging_type_company" model="ir.rule">
+        <field name="name">Product packaging types by company</field>
+        <field name="model_id" ref="model_pharmadus_product_packaging_type"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_base_form_company" model="ir.rule">
+        <field name="name">Product base forms by company</field>
+        <field name="model_id" ref="model_pharmadus_product_base_form"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_garment_company" model="ir.rule">
+        <field name="name">Product garments by company</field>
+        <field name="model_id" ref="model_pharmadus_product_garment"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_purchase_line_company" model="ir.rule">
+        <field name="name">Purchase product lines by company</field>
+        <field name="model_id" ref="model_pharmadus_product_purchase_line"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_purchase_subline_company" model="ir.rule">
+        <field name="name">Purchase product sublines by company</field>
+        <field name="model_id" ref="model_pharmadus_product_purchase_subline"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_pharmadus_product_grouping_company" model="ir.rule">
+        <field name="name">Product groupings by company</field>
+        <field name="model_id" ref="model_pharmadus_product_grouping"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>
