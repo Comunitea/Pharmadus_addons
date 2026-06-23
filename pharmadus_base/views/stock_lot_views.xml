@@ -18,4 +18,21 @@
             </xpath>
         </field>
     </record>
+
+    <record id="view_stock_lot_form_quality_buttons" model="ir.ui.view">
+        <field name="name">stock.lot.form.quality.buttons</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock_lot_state.view_production_lot_form_state"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_set_approved']" position="attributes">
+                <attribute name="groups">quality_control_oca.group_quality_control_manager</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_set_rejected']" position="attributes">
+                <attribute name="groups">quality_control_oca.group_quality_control_manager</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_set_pending']" position="attributes">
+                <attribute name="groups">quality_control_oca.group_quality_control_manager</attribute>
+            </xpath>
+        </field>
+    </record>
 </odoo>
