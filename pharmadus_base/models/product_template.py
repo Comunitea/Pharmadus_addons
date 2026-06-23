@@ -44,16 +44,19 @@ class ProductTemplate(models.Model):
     pharmadus_packaging_type_id = fields.Many2one(
         comodel_name="pharmadus.product.packaging.type",
         string="Envasado",
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         ondelete="restrict",
     )
     pharmadus_base_form_id = fields.Many2one(
         comodel_name="pharmadus.product.base.form",
         string="Forma base",
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         ondelete="restrict",
     )
     pharmadus_garment_id = fields.Many2one(
         comodel_name="pharmadus.product.garment",
         string="Vestimenta",
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         ondelete="restrict",
     )
     pharmadus_purchase_line_id = fields.Many2one(
@@ -73,6 +76,7 @@ class ProductTemplate(models.Model):
     pharmadus_grouping_id = fields.Many2one(
         comodel_name="pharmadus.product.grouping",
         string="Agrupación",
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         ondelete="restrict",
     )
     pharmadus_subgrouping = fields.Char(
@@ -124,6 +128,62 @@ class ProductTemplate(models.Model):
                 and record.pharmadus_purchase_subline_id.company_id != record.company_id
             ):
                 record.pharmadus_purchase_subline_id = False
+
+            for field_name in (
+                "pharmadus_packaging_type_id",
+                "pharmadus_base_form_id",
+                "pharmadus_garment_id",
+                "pharmadus_grouping_id",
+            ):
+                field = record[field_name]
+                if field.company_id and field.company_id != record.company_id:
+                    record[field_name] = False
+
+    @api.constrains(
+        "company_id",
+        "pharmadus_line_id",
+        "pharmadus_subline_id",
+        "pharmadus_packaging_type_id",
+        "pharmadus_base_form_id",
+        "pharmadus_garment_id",
+        "pharmadus_purchase_line_id",
+        "pharmadus_purchase_subline_id",
+        "pharmadus_grouping_id",
+    )
+    def _check_pharmadus_specification_consistency(self):
+        for record in self:
+            if (
+                record.pharmadus_subline_id
+                and record.pharmadus_subline_id.line_id != record.pharmadus_line_id
+            ):
+                raise ValidationError(
+                    "La sublínea debe pertenecer a la línea seleccionada."
+                )
+            if (
+                record.pharmadus_purchase_subline_id
+                and record.pharmadus_purchase_subline_id.line_id
+                != record.pharmadus_purchase_line_id
+            ):
+                raise ValidationError(
+                    "La sublínea de compras debe pertenecer a la línea de compras seleccionada."
+                )
+            company_fields = (
+                record.pharmadus_line_id,
+                record.pharmadus_subline_id,
+                record.pharmadus_packaging_type_id,
+                record.pharmadus_base_form_id,
+                record.pharmadus_garment_id,
+                record.pharmadus_purchase_line_id,
+                record.pharmadus_purchase_subline_id,
+                record.pharmadus_grouping_id,
+            )
+            if any(
+                field.company_id and field.company_id != record.company_id
+                for field in company_fields
+            ):
+                raise ValidationError(
+                    "Las especificaciones deben pertenecer a la compañía del producto."
+                )
 
     @api.constrains("pharmadus_quantity")
     def _check_pharmadus_quantity(self):
