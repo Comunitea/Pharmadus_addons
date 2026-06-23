@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="bookmark.BookmarkMenu">
+
+    <Dropdown menuClass="'o_bookmark_menu d-md-block'" position="'bottom-end'">
+        <button>
+            <i class="fa fa-bookmark me-1"/>
+            <span class="ml-1 d-none d-md-inline">Bookmark</span>
+        </button>
+        <t t-set-slot="content">
+            <t t-if="this.bookmarkService.bookmarkItems == 0">
+                <DropdownItem class="'p-2'" closingMode="'all'">
+                    <div class="text-center">No Bookmark</div>
+                </DropdownItem>
+            </t>
+            <t t-else="">
+                <t t-foreach="this.bookmarkService.bookmarkItems" t-as="item" t-key="item_index">
+                    <DropdownItem closingMode="'all'">
+                        <div t-on-click.stop="() => this.onBookmarkChoose(item)">
+                            <div class="d-flex justify-content-between w-100">
+                                <div class="d-flex flex-wrap">
+                                    <button class="fa fa-share-alt btn btn-link py-0 px-0 me-1"
+                                        role="button"
+                                        aria-label="Share"
+                                        title="Share"
+                                        t-on-click.stop="() => this.onBookmarkShare(item)"
+                                    />
+                                    <div t-esc="item.name"/>
+                                </div>
+                                <div>
+                                    <button class="oi oi-close btn btn-link py-0 px-0 text-danger"
+                                        role="button"
+                                        aria-label="Remove"
+                                        title="Remove"
+                                        t-on-click.stop="() => this.onBookmarkRemove(item)"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </DropdownItem>
+                </t>
+                <DropdownItem class="'p-2'" closingMode="'all'">
+                    <div class="d-flex justify-content-between w-100">
+                        <button class="btn btn-link py-0 px-0"
+                            role="button"
+                            aria-label="Share"
+                            title="Share"
+                            t-on-click.stop="() => this.onBookmarkShareAll()"
+                        ><i class="fa fa-share-alt me-1"/><span>Share All</span></button>
+                        <button class="btn btn-link py-0 px-0 text-danger"
+                            role="button"
+                            aria-label="Remove"
+                            title="Remove"
+                            t-on-click.stop="() => this.onBookmarkRemoveAll()"
+                        ><i class="oi oi-close me-1"/><span>Clear</span></button>
+                    </div>
+                </DropdownItem>
+            </t>
+        </t>
+    </Dropdown>
+</t>
+</templates>

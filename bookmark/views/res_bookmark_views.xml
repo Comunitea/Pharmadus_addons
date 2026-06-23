@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_bookmark_form" model="ir.ui.view">
+        <field name="name">res.bookmark.form</field>
+        <field name="model">res.bookmark</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="user_ids" widget="many2many_tags"/>
+                            <field name="model"/>
+                            <field name="view_type"/>
+                        </group>
+                        <group>
+                            <field name="menu_id"/>
+                            <field name="action_id"/>
+                            <field name="suggest_ids"
+                                domain="[('model', '=', model)]"
+                                widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="res_bookmark_list" model="ir.ui.view">
+        <field name="name">res.bookmark.list</field>
+        <field name="model">res.bookmark</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="menu_id"/>
+                <field name="user_ids" widget="many2many_tags"/>
+                <field name="action_id"/>
+                <field name="model"/>
+                <field name="suggest_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="res_bookmark_search" model="ir.ui.view">
+        <field name="name">res.bookmark.search</field>
+        <field name="model">res.bookmark</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="user_ids"/>
+                <field name="action_id"/>
+                <group string="Group By" expand="0" name="groupby">
+                    <filter string="Users" name="user_ids" context="{'group_by': 'user_ids'}"/>
+                    <filter string="Action" name="action_id" context="{'group_by': 'action_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="res_bookmark_action" model="ir.actions.act_window">
+        <field name="name">Bookmark</field>
+        <field name="res_model">res.bookmark</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem parent="base.next_id_2" name="Bookmark"
+        id="menu_bookmark" action="res_bookmark_action" sequence="7"/>
+</odoo>
