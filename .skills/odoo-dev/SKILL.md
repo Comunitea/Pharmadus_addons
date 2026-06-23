@@ -286,6 +286,11 @@ suite unless explicitly needed.
 - Do not expose credentials from `config.json` or other local files.
 - Do not assume service/container names; verify with Compose.
 - Do not claim database state without querying the database.
+- Before making code or configuration changes, update the local branch from
+  `/opt/pharmadus` and confirm the worktree reflects the latest remote state.
+- Protect remote repository changes already present locally: restore or merge
+  tracked files carefully and preserve local-only addon directories unless the
+  task explicitly requires removing them.
 - Do not overwrite worktree changes made by the user or other agents.
 - Do not commit, push, or amend unless explicitly requested.
 - Use `/opt/pharmadus` as the working directory for Docker Compose commands.
@@ -306,4 +311,4 @@ suite unless explicitly needed.
   it with unrelated dry-run JSON unless intentionally changing the migration
   scripts.
 
-Last reviewed against local files: 2026-06-15.
+Last reviewed against local files: 2026-06-23.
