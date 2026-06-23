@@ -77,6 +77,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='expiration_date']" position="attributes">
                 <attribute name="string">Caducidad</attribute>
+                <attribute name="column_invisible">True</attribute>
             </xpath>
         </field>
     </record>

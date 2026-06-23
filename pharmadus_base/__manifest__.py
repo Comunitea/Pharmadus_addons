@@ -24,6 +24,7 @@
         "security/ir.model.access.csv",
         "security/ir_rule.xml",
         "views/pharmadus_product_specification_views.xml",
+        "views/res_users_views.xml",
         "views/product_template_views.xml",
         "views/purchase_requisition_views.xml",
         "views/stock_lot_views.xml",

@@ -17,6 +17,40 @@
         <field name="dpi">90</field>
     </record>
 
+    <record id="paperformat_lot_reception_labels_pharmadus" model="report.paperformat">
+        <field name="name">Pharmadus Reception Lot Labels</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">62</field>
+        <field name="page_width">28</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">0</field>
+        <field name="margin_bottom">0</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True"/>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="paperformat_lot_state_labels_pharmadus" model="report.paperformat">
+        <field name="name">Pharmadus Lot State Labels</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">62</field>
+        <field name="page_width">100</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">0</field>
+        <field name="margin_bottom">0</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True"/>
+        <field name="dpi">90</field>
+    </record>
+
     <template id="report_lot_labels">
         <t t-call="web.html_container">
             <style type="text/css">
@@ -102,6 +136,8 @@
                     text-align: center;
                 }
             </style>
+            <t t-set="printing_user" t-value="env.user"/>
+            <t t-set="print_date" t-value="context_timestamp(datetime.datetime.now())"/>
             <t t-set="has_previous_label" t-value="False"/>
             <t t-foreach="docs" t-as="picking">
                 <t
@@ -166,6 +202,228 @@
         <field name="paperformat_id" ref="pharmadus_base.paperformat_lot_labels_pharmadus"/>
         <field name="print_report_name">'Etiquetas de lotes - %s' % (object.name)</field>
         <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_lot_sampling_label">
+        <t t-call="web.html_container">
+            <style type="text/css">
+                html, body { margin: 0; padding: 0; }
+                .pharmadus-sampling-label { box-sizing: border-box; height: 28mm; overflow: hidden; padding: 1mm 2mm; page-break-inside: avoid; width: 62mm; }
+                .pharmadus-sampling-label--break-before { page-break-before: always; }
+                .pharmadus-sampling-label__title { font-size: 9px; font-weight: 700; line-height: 1.05; text-align: center; }
+                .pharmadus-sampling-label__barcode { display: block; margin: 0 auto; width: 54mm; }
+                .pharmadus-sampling-label__main { font-size: 22px; font-weight: 700; line-height: 1; text-align: center; }
+                .pharmadus-sampling-label__lot { font-size: 12px; font-weight: 700; line-height: 1; text-align: center; }
+                .pharmadus-sampling-label__footer { align-items: flex-end; display: flex; font-size: 9px; justify-content: space-between; margin-top: 1mm; }
+                .pharmadus-sampling-label__signature { border-bottom: 1px solid #000; height: 7mm; min-width: 18mm; text-align: center; }
+                .pharmadus-sampling-label__signature img { max-height: 6mm; max-width: 17mm; }
+            </style>
+            <t t-set="printing_user" t-value="env.user"/>
+            <t t-set="has_previous_label" t-value="False"/>
+            <t t-foreach="docs" t-as="lot">
+                <div t-att-class="'pharmadus-sampling-label%s' % (' pharmadus-sampling-label--break-before' if has_previous_label else '')">
+                    <div class="pharmadus-sampling-label__title" t-out="lot.product_id.name or ''"/>
+                    <t t-set="product_barcode" t-value="(lot.product_id.default_code or '').replace('-', '/')"/>
+                    <span t-if="product_barcode" class="pharmadus-sampling-label__barcode" t-out="product_barcode" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 700, 'height': 50, 'quiet': 0, 'img_style': 'display:block;width:54mm;height:5mm;'}"/>
+                    <div t-if="lot.product_id.default_code" style="font-size: 7px; text-align: center;" t-out="lot.product_id.default_code"/>
+                    <div class="pharmadus-sampling-label__main" t-out="label_title"/>
+                    <div class="pharmadus-sampling-label__lot">Lote: <t t-out="lot.name or ''"/></div>
+                    <t t-set="lot_barcode" t-value="(lot.name or '').replace('-', '/')"/>
+                    <span class="pharmadus-sampling-label__barcode" t-out="lot_barcode" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 700, 'height': 45, 'quiet': 0, 'img_style': 'display:block;width:54mm;height:5mm;'}"/>
+                    <div class="pharmadus-sampling-label__footer">
+                        <div>Fecha: <t t-out="context_timestamp(datetime.datetime.now()).strftime('%d-%m-%Y')"/></div>
+                        <div>Firma:</div>
+                        <div class="pharmadus-sampling-label__signature">
+                            <img t-if="printing_user.pharmadus_signature_image" t-att-src="image_data_uri(printing_user.pharmadus_signature_image)" alt="Firma"/>
+                        </div>
+                    </div>
+                </div>
+                <t t-set="has_previous_label" t-value="True"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_lot_sampling_reception_label">
+        <t t-call="web.html_container">
+            <style type="text/css">
+                html, body { margin: 0; padding: 0; }
+                .pharmadus-sampling-reception { box-sizing: border-box; height: 28mm; overflow: hidden; padding: 0.5mm 1mm; page-break-inside: avoid; position: relative; width: 62mm; }
+                .pharmadus-sampling-reception--break-before { page-break-before: always; }
+                .pharmadus-sampling-reception__side { height: 27mm; overflow: hidden; position: absolute; top: 0.5mm; width: 7mm; }
+                .pharmadus-sampling-reception__side--left { left: 0.5mm; }
+                .pharmadus-sampling-reception__side--right { right: 0.5mm; }
+                .pharmadus-sampling-reception__side-content { height: 7mm; position: absolute; top: 10mm; width: 27mm; }
+                .pharmadus-sampling-reception__side--left .pharmadus-sampling-reception__side-content { left: -10mm; transform: rotate(-90deg); transform-origin: center center; }
+                .pharmadus-sampling-reception__side--right .pharmadus-sampling-reception__side-content { right: -10mm; transform: rotate(90deg); transform-origin: center center; }
+                .pharmadus-sampling-reception__side-barcode { display: block; height: 5mm; width: 27mm; }
+                .pharmadus-sampling-reception__side-text { font-size: 5px; font-weight: 700; line-height: 1; margin-top: 0.5mm; overflow: hidden; text-align: center; white-space: nowrap; width: 27mm; }
+                .pharmadus-sampling-reception__content { box-sizing: border-box; margin-left: 8mm; margin-right: 8mm; overflow: hidden; padding-top: 0.2mm; }
+                .pharmadus-sampling-reception__product { font-size: 9px; font-weight: 700; line-height: 1; max-height: 5mm; overflow: hidden; text-align: center; }
+                .pharmadus-sampling-reception__lot { font-size: 22px; font-weight: 700; line-height: 0.95; margin-top: 0.4mm; text-align: center; }
+                .pharmadus-sampling-reception__row { align-items: center; display: flex; font-size: 7px; line-height: 1; margin-top: 0.6mm; }
+                .pharmadus-sampling-reception__label { flex: 0 0 18mm; }
+                .pharmadus-sampling-reception__value { flex: 1 1 auto; font-size: 8px; line-height: 1; }
+                .pharmadus-sampling-reception__signature { height: 5.5mm; margin-left: 18mm; overflow: hidden; }
+                .pharmadus-sampling-reception__signature img { max-height: 5.5mm; max-width: 22mm; }
+            </style>
+            <t t-set="printing_user" t-value="env.user"/>
+            <t t-set="has_previous_label" t-value="False"/>
+            <t t-foreach="docs" t-as="lot">
+                <t t-set="lot_barcode" t-value="(lot.name or '').replace('-', '/')"/>
+                <t t-set="product_barcode" t-value="(lot.product_id.default_code or '').replace('-', '/')"/>
+                <div t-att-class="'pharmadus-sampling-reception%s' % (' pharmadus-sampling-reception--break-before' if has_previous_label else '')">
+                    <div class="pharmadus-sampling-reception__side pharmadus-sampling-reception__side--left">
+                        <div class="pharmadus-sampling-reception__side-content">
+                            <span class="pharmadus-sampling-reception__side-barcode" t-out="lot_barcode" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 520, 'height': 90, 'quiet': 0, 'img_style': 'display:block;width:27mm;height:5mm;'}"/>
+                            <div class="pharmadus-sampling-reception__side-text" t-out="lot.name or ''"/>
+                        </div>
+                    </div>
+                    <div class="pharmadus-sampling-reception__side pharmadus-sampling-reception__side--right">
+                        <div class="pharmadus-sampling-reception__side-content">
+                            <span t-if="product_barcode" class="pharmadus-sampling-reception__side-barcode" t-out="product_barcode" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 520, 'height': 90, 'quiet': 0, 'img_style': 'display:block;width:27mm;height:5mm;'}"/>
+                            <div class="pharmadus-sampling-reception__side-text" t-out="lot.product_id.default_code or ''"/>
+                        </div>
+                    </div>
+                    <div class="pharmadus-sampling-reception__content">
+                        <div class="pharmadus-sampling-reception__product" t-out="lot.product_id.name or ''"/>
+                        <div class="pharmadus-sampling-reception__lot" t-out="lot.name or ''"/>
+                        <div class="pharmadus-sampling-reception__row">
+                            <div class="pharmadus-sampling-reception__label">Fecha toma muestra:</div>
+                            <div class="pharmadus-sampling-reception__value" t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
+                        </div>
+                        <div class="pharmadus-sampling-reception__row">
+                            <div class="pharmadus-sampling-reception__label">Realizado por:</div>
+                            <div class="pharmadus-sampling-reception__value" t-out="printing_user.name"/>
+                        </div>
+                        <div class="pharmadus-sampling-reception__signature">
+                            <img t-if="printing_user.pharmadus_signature_image" t-att-src="image_data_uri(printing_user.pharmadus_signature_image)" alt="Firma"/>
+                        </div>
+                    </div>
+                </div>
+                <t t-set="has_previous_label" t-value="True"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_lot_sampled_package_label">
+        <t t-call="web.html_container">
+            <style type="text/css">
+                html, body { margin: 0; padding: 0; }
+                .pharmadus-sampled-package { box-sizing: border-box; height: 28mm; overflow: hidden; padding: 1mm 2mm; page-break-inside: avoid; width: 62mm; }
+                .pharmadus-sampled-package--break-before { page-break-before: always; }
+                .pharmadus-sampled-package__logo img { max-height: 5mm; max-width: 18mm; }
+                .pharmadus-sampled-package__title { border-bottom: 1px solid #000; font-size: 20px; font-weight: 700; line-height: 1.05; margin-top: 1mm; text-align: center; }
+                .pharmadus-sampled-package__row { font-size: 10px; line-height: 1.2; margin-top: 3mm; }
+                .pharmadus-sampled-package__row strong { font-weight: 700; }
+            </style>
+            <t t-set="printing_user" t-value="env.user"/>
+            <t t-set="has_previous_label" t-value="False"/>
+            <t t-foreach="docs" t-as="lot">
+                <div t-att-class="'pharmadus-sampled-package%s' % (' pharmadus-sampled-package--break-before' if has_previous_label else '')">
+                    <div class="pharmadus-sampled-package__logo">
+                        <img t-if="lot.company_id.logo" t-att-src="image_data_uri(lot.company_id.logo)" alt="Logo"/>
+                    </div>
+                    <div class="pharmadus-sampled-package__title">ENVASE MUESTREADO</div>
+                    <div class="pharmadus-sampled-package__row"><strong>FECHA:</strong> <t t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/></div>
+                    <div class="pharmadus-sampled-package__row"><strong>REALIZA:</strong> <t t-out="printing_user.name"/></div>
+                </div>
+                <t t-set="has_previous_label" t-value="True"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_lot_approved_label">
+        <t t-set="label_title" t-value="'APROBADO'"/>
+        <t t-call="pharmadus_base.report_lot_state_label"/>
+    </template>
+
+    <template id="report_lot_rejected_label">
+        <t t-set="label_title" t-value="'RECHAZADO'"/>
+        <t t-call="pharmadus_base.report_lot_state_label"/>
+    </template>
+
+    <template id="report_lot_state_label">
+        <t t-call="web.html_container">
+            <style type="text/css">
+                html, body { margin: 0; padding: 0; }
+                .pharmadus-state-label { box-sizing: border-box; height: 62mm; overflow: hidden; padding: 3mm 4mm; page-break-inside: avoid; width: 100mm; }
+                .pharmadus-state-label--break-before { page-break-before: always; }
+                .pharmadus-state-label__title { border: 1px solid #000; font-size: 36px; font-weight: 700; line-height: 1.1; padding: 1mm 0; text-align: center; }
+                .pharmadus-state-label__product { font-size: 16px; font-weight: 700; line-height: 1.1; margin-top: 2mm; max-height: 9mm; overflow: hidden; text-align: center; }
+                .pharmadus-state-label__lot { font-size: 26px; font-weight: 700; line-height: 1.05; margin-top: 2mm; text-align: center; }
+                .pharmadus-state-label__barcode { display: block; margin: 1mm auto 0; width: 82mm; }
+                .pharmadus-state-label__footer { align-items: flex-end; display: flex; font-size: 13px; justify-content: space-between; margin-top: 3mm; }
+                .pharmadus-state-label__signature { border-bottom: 1px solid #000; height: 12mm; min-width: 32mm; text-align: center; }
+                .pharmadus-state-label__signature img { max-height: 11mm; max-width: 30mm; }
+            </style>
+            <t t-set="printing_user" t-value="env.user"/>
+            <t t-set="has_previous_label" t-value="False"/>
+            <t t-foreach="docs" t-as="lot">
+                <div t-att-class="'pharmadus-state-label%s' % (' pharmadus-state-label--break-before' if has_previous_label else '')">
+                    <div class="pharmadus-state-label__title" t-out="label_title"/>
+                    <div class="pharmadus-state-label__product" t-out="lot.product_id.name or ''"/>
+                    <div class="pharmadus-state-label__lot">Lote: <t t-out="lot.name or ''"/></div>
+                    <t t-set="lot_barcode" t-value="(lot.name or '').replace('-', '/')"/>
+                    <span class="pharmadus-state-label__barcode" t-out="lot_barcode" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 900, 'height': 90, 'quiet': 0, 'img_style': 'display:block;width:82mm;height:10mm;'}"/>
+                    <div class="pharmadus-state-label__footer">
+                        <div>Fecha: <t t-out="context_timestamp(datetime.datetime.now()).strftime('%d-%m-%Y')"/></div>
+                        <div>Firma:</div>
+                        <div class="pharmadus-state-label__signature">
+                            <img t-if="printing_user.pharmadus_signature_image" t-att-src="image_data_uri(printing_user.pharmadus_signature_image)" alt="Firma"/>
+                        </div>
+                    </div>
+                </div>
+                <t t-set="has_previous_label" t-value="True"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_lot_sampling_reception_label" model="ir.actions.report">
+        <field name="name">Rec. - Etiqueta de muestreo</field>
+        <field name="model">stock.lot</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pharmadus_base.report_lot_sampling_reception_label</field>
+        <field name="report_file">pharmadus_base.report_lot_sampling_reception_label</field>
+        <field name="paperformat_id" ref="pharmadus_base.paperformat_lot_reception_labels_pharmadus"/>
+        <field name="print_report_name">'Rec. - Etiqueta de muestreo - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_lot"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_lot_sampled_package_label" model="ir.actions.report">
+        <field name="name">Rec. - Envase muestreado</field>
+        <field name="model">stock.lot</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pharmadus_base.report_lot_sampled_package_label</field>
+        <field name="report_file">pharmadus_base.report_lot_sampled_package_label</field>
+        <field name="paperformat_id" ref="pharmadus_base.paperformat_lot_reception_labels_pharmadus"/>
+        <field name="print_report_name">'Rec. - Envase muestreado - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_lot"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_lot_approved_label" model="ir.actions.report">
+        <field name="name">Etiqueta de aprobado</field>
+        <field name="model">stock.lot</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pharmadus_base.report_lot_approved_label</field>
+        <field name="report_file">pharmadus_base.report_lot_approved_label</field>
+        <field name="paperformat_id" ref="pharmadus_base.paperformat_lot_state_labels_pharmadus"/>
+        <field name="print_report_name">'Etiqueta de aprobado - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_lot"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_lot_rejected_label" model="ir.actions.report">
+        <field name="name">Etiqueta de rechazado</field>
+        <field name="model">stock.lot</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pharmadus_base.report_lot_rejected_label</field>
+        <field name="report_file">pharmadus_base.report_lot_rejected_label</field>
+        <field name="paperformat_id" ref="pharmadus_base.paperformat_lot_state_labels_pharmadus"/>
+        <field name="print_report_name">'Etiqueta de rechazado - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_lot"/>
         <field name="binding_type">report</field>
     </record>
 </odoo>

@@ -153,6 +153,9 @@ pharmadus_stock_supplier_lot
 pharmadus_custom
 ```
 
+Only the `pharmadus_base` and `migracion_pharmadus_8_18` modules can be modified.
+All other modules belong to external collaborators and must not be touched.
+
 There may be additional work-in-progress addons in the working tree. Check
 `git status --short` and avoid overwriting unrelated changes.
 
