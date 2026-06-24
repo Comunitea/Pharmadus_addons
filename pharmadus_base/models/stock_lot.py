@@ -1,8 +1,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-import math
-
 from odoo import fields, models
+from odoo.tools.safe_eval import safe_eval
 
 
 class StockLot(models.Model):
@@ -45,9 +44,47 @@ class StockLot(models.Model):
     def _pharmadus_get_labels_to_print(self):
         self.ensure_one()
         package_count = max(self.pharmadus_package_count or 0, 0)
-        if not package_count:
-            return 1
-        if not self._pharmadus_is_sampling_label_case():
-            return package_count
-        # Mantiene la lógica histórica: envases + etiquetas de muestreo.
-        return package_count + math.ceil(math.sqrt(package_count)) + 1
+        pallet_count = max(self.pharmadus_pallet_count or 0, 0)
+        labels = [
+            {
+                "display": f"{index} de {package_count}",
+            }
+            for index in range(1, package_count + 1)
+        ]
+        labels.extend(
+            {
+                "display": "PALET",
+            }
+            for _ in range(pallet_count)
+        )
+        return labels
+
+    def _pharmadus_get_move_history_domain(self, lot_ids=None):
+        lot_ids = lot_ids or self.ids
+        return [
+            ("lot_id", "in", lot_ids),
+            ("state", "=", "done"),
+            "|",
+            ("picking_id", "=", False),
+            ("picking_id.picking_type_id.code", "!=", "internal"),
+        ]
+
+    def action_open_pharmadus_move_history(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "stock.stock_move_line_action"
+        )
+        action["domain"] = self._pharmadus_get_move_history_domain(lot_ids=[self.id])
+        base_action_context = action.get("context", {})
+        if isinstance(base_action_context, str):
+            base_action_context = safe_eval(base_action_context, {})
+        action_context = dict(self.env.context)
+        action_context.update(base_action_context)
+        action_context.update(
+            {
+                "search_default_done": 1,
+                "default_lot_id": self.id,
+            }
+        )
+        action["context"] = action_context
+        return action

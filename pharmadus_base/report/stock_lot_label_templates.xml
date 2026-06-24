@@ -102,6 +102,14 @@
                     min-height: 5mm;
                     overflow: hidden;
                 }
+                .pharmadus-lot-label__counter {
+                    font-size: 19px;
+                    font-weight: 700;
+                    line-height: 1.05;
+                    margin-top: 1mm;
+                    min-height: 6mm;
+                    text-align: right;
+                }
                 .pharmadus-lot-label__block {
                     margin-top: 3mm;
                     page-break-inside: avoid;
@@ -119,7 +127,7 @@
                     text-align: center;
                 }
                 .pharmadus-lot-label__product {
-                    font-size: 16px;
+                    font-size: 19px;
                     font-weight: 700;
                     line-height: 1.05;
                     margin-top: 1.2mm;
@@ -146,7 +154,7 @@
                 />
                 <t t-foreach="lots" t-as="lot">
                     <t t-set="labels_to_print" t-value="lot._pharmadus_get_labels_to_print()"/>
-                    <t t-foreach="range(labels_to_print)" t-as="label_index">
+                    <t t-foreach="labels_to_print" t-as="label_data">
                         <div t-att-class="'pharmadus-lot-label%s' % (' pharmadus-lot-label--break-before' if has_previous_label else '')">
                             <div class="pharmadus-lot-label__content">
                                 <div class="pharmadus-lot-label__logo">
@@ -160,6 +168,7 @@
                                 <div>
                                     <p class="pharmadus-lot-label__partner" t-out="picking.partner_id.display_name or ''"/>
                                     <p class="pharmadus-lot-label__supplier-lot" t-out="lot.ref or ''"/>
+                                    <p class="pharmadus-lot-label__counter" t-out="label_data['display']"/>
                                 </div>
 
                                 <div class="pharmadus-lot-label__block">
