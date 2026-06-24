@@ -17,6 +17,17 @@
                         <span class="o_stat_text">Trazabilidad simple</span>
                     </div>
                 </button>
+                <button
+                    name="action_open_pharmadus_lot_details"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-list-ul"
+                    help="Detalles de lote"
+                >
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Detalles de lote</span>
+                    </div>
+                </button>
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="pharmadus_reception" string="Recepción">
@@ -45,6 +56,26 @@
             </xpath>
             <xpath expr="//button[@name='action_set_pending']" position="attributes">
                 <attribute name="groups">quality_control_oca.group_quality_control_manager</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_line_tree_pharmadus_lot_details" model="ir.ui.view">
+        <field name="name">stock.move.line.list.pharmadus.lot.details</field>
+        <field name="model">stock.move.line</field>
+        <field name="inherit_id" ref="stock.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date']" position="after">
+                <field
+                    name="pharmadus_lot_movement_type"
+                    widget="badge"
+                    optional="show"
+                    column_invisible="not context.get('pharmadus_show_lot_details')"
+                    decoration-info="pharmadus_lot_movement_type == 'entry'"
+                    decoration-success="pharmadus_lot_movement_type == 'approved'"
+                    decoration-danger="pharmadus_lot_movement_type == 'rejected'"
+                    decoration-primary="pharmadus_lot_movement_type == 'reanalysis'"
+                />
             </xpath>
         </field>
     </record>
