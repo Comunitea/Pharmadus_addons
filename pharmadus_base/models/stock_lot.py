@@ -27,6 +27,26 @@ class StockLot(models.Model):
         string="Nº de pallets",
     )
 
+    def _pharmadus_auto_approve_if_configured(self):
+        lots_to_approve = self.filtered(lambda lot: lot.state == "pending")
+        if not lots_to_approve:
+            return self.env["stock.lot"]
+
+        category_route_ids = {}
+        approved_lots = self.env["stock.lot"]
+        for lot in lots_to_approve:
+            product_category = lot.product_id.categ_id
+            category_routes = category_route_ids.get(product_category.id)
+            if category_routes is None:
+                category_routes = product_category.total_route_ids
+                category_route_ids[product_category.id] = category_routes
+            if category_routes.filtered("pharmadus_auto_approve_lot"):
+                approved_lots |= lot
+
+        if approved_lots:
+            approved_lots.action_set_approved()
+        return approved_lots
+
     def _pharmadus_is_sampling_label_case(self):
         self.ensure_one()
         packaging_type = self.pharmadus_packaging_type_id

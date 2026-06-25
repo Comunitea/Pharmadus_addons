@@ -80,6 +80,7 @@ class StockLotCreationWizard(models.TransientModel):
         lot_values = {k: v for k, v in lot_values.items() if v is not None}
 
         new_lot = self.env['stock.lot'].create(lot_values)
+        new_lot._pharmadus_auto_approve_if_configured()
 
         moves_to_update = self.source_move_id.mapped('move_line_ids').filtered(
             lambda line: not line.lot_id and line.product_id == self.product_id
