@@ -29,6 +29,7 @@
         "views/res_users_views.xml",
         "views/product_template_views.xml",
         "views/purchase_requisition_views.xml",
+        "views/stock_route_views.xml",
         "views/stock_lot_views.xml",
         "views/report_views.xml",
         "views/sale_transfer_views.xml",

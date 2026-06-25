@@ -167,3 +167,13 @@ class StockMoveLine(models.Model):
                 vals["lot_name"] = lot_name
 
         return super().create(vals_list)
+
+    def _create_and_assign_production_lot(self):
+        lines_to_approve = self.filtered(
+            lambda line: line.lot_name
+            and not line.lot_id
+            and (line.picking_id or line.move_id.picking_id).picking_type_code == "incoming"
+        )
+        res = super()._create_and_assign_production_lot()
+        lines_to_approve.mapped("lot_id")._pharmadus_auto_approve_if_configured()
+        return res
