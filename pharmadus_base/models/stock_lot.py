@@ -47,6 +47,17 @@ class StockLot(models.Model):
             approved_lots.action_set_approved()
         return approved_lots
 
+    def action_set_approved(self):
+        res = super().action_set_approved()
+        for lot in self.filtered("approved_date"):
+            approval_date = fields.Date.to_date(lot.approved_date)
+            latest_production = self.env["mrp.production"].search(
+                [("lot_producing_id", "=", lot.id)], order="id desc", limit=1
+            )
+            if latest_production:
+                latest_production.write({"actual_date": approval_date})
+        return res
+
     def _pharmadus_is_sampling_label_case(self):
         self.ensure_one()
         packaging_type = self.pharmadus_packaging_type_id

@@ -16,6 +16,7 @@
         "purchase",
         "purchase_requisition",
         "stock",
+        "mrp",
         "stock_lot_state",
         "product_expiry",
         "quality_control_oca",
