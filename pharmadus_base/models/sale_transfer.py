@@ -6,6 +6,7 @@ from odoo.tools import float_compare
 
 class SaleTransfer(models.Model):
     _name = "sale.transfer"
+    _description = "Sale Transfer"
 
     name = fields.Char(
         string="Order Reference",
@@ -20,13 +21,11 @@ class SaleTransfer(models.Model):
         comodel_name='res.partner',
         string="Cliente",
         required=True, change_default=True, index=True,
-        tracking=1,
         check_company=True)
     cooperative_id = fields.Many2one(
         comodel_name='res.partner',
         string="Cooperativa",
         required=True, change_default=True, index=True,
-        tracking=1,
         check_company=True)        
     partner_shipping_id = fields.Many2one(
         comodel_name='res.partner',
@@ -93,10 +92,6 @@ class SaleTransfer(models.Model):
                         'default_template_id': mail_template.id,
                         'mark_so_as_sent': True,
                     })
-            else:
-                for order in self:
-                    order._portal_ensure_token()
-
         action = {
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
@@ -135,6 +130,7 @@ class SaleTransfer(models.Model):
 
 class SaleTransferLine(models.Model):
     _name = 'sale.transfer.line'
+    _description = "Sale Transfer Line"
 
 
     order_id = fields.Many2one(
@@ -160,7 +156,7 @@ class SaleTransferLine(models.Model):
         # without modifying the related product_id when updated.
         domain=[('sale_ok', '=', True)])
     product_uom_qty = fields.Float(
-        string="Cantiadad",
+        string="Cantidad",
         compute='_compute_product_uom_qty',
         digits='Product Unit of Measure', default=1.0,
         store=True, readonly=False, required=True, precompute=True)
@@ -184,6 +180,10 @@ class SaleTransferLine(models.Model):
         store=True, readonly=False, precompute=True,
         domain="[('sales', '=', True), ('product_id','=',product_id)]",
         check_company=True)
+    product_packaging_qty = fields.Float(
+        string="Packaging Quantity",
+        default=1.0,
+    )
 
 
     @api.depends('product_id')
@@ -194,7 +194,7 @@ class SaleTransferLine(models.Model):
     def _search_product_template_id(self, operator, value):
         return [('product_id.product_tmpl_id', operator, value)]
 
-    @api.depends('product_id')
+    @api.depends('product_id', 'product_packaging_id', 'product_packaging_qty', 'product_uom')
     def _compute_product_uom_qty(self):
         for line in self:
             if line.display_type:

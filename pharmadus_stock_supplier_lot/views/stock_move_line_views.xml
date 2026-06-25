@@ -11,7 +11,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='lot_name']" position="after">
                 <field name="supplier_lot_ref"
-                       string="Lote de proveedor"
+                       string="Lote proveedor"
                        groups="stock.group_production_lot"
                        column_invisible="parent.has_tracking == 'none' or not parent.show_lots_text"/>
             </xpath>

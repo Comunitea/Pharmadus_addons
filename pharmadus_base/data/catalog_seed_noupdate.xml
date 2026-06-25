@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <function model="ir.model.data" name="_pharmadus_mark_catalog_seed_noupdate" eval="[[]]"/>
+</odoo>

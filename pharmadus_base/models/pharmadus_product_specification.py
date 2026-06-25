@@ -23,11 +23,27 @@ class PharmadusProductLine(models.Model):
     _description = "Product Line"
     _inherit = "pharmadus.catalog.mixin"
 
+    _sql_constraints = [
+        (
+            "pharmadus_product_line_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos líneas con el mismo nombre en la misma compañía.",
+        ),
+    ]
+
 
 class PharmadusProductSubline(models.Model):
     _name = "pharmadus.product.subline"
     _description = "Product Subline"
     _inherit = "pharmadus.catalog.mixin"
+
+    _sql_constraints = [
+        (
+            "pharmadus_product_subline_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos sublíneas con el mismo nombre en la misma compañía.",
+        ),
+    ]
 
     line_id = fields.Many2one(
         comodel_name="pharmadus.product.line",
@@ -55,11 +71,27 @@ class PharmadusProductPackaging(models.Model):
     _description = "Product Packaging Type"
     _inherit = "pharmadus.catalog.mixin"
 
+    _sql_constraints = [
+        (
+            "pharmadus_product_packaging_type_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos envasados con el mismo nombre en la misma compañía.",
+        ),
+    ]
+
 
 class PharmadusProductBaseForm(models.Model):
     _name = "pharmadus.product.base.form"
     _description = "Product Base Form"
     _inherit = "pharmadus.catalog.mixin"
+
+    _sql_constraints = [
+        (
+            "pharmadus_product_base_form_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos formas base con el mismo nombre en la misma compañía.",
+        ),
+    ]
 
 
 class PharmadusProductGarment(models.Model):
@@ -67,17 +99,41 @@ class PharmadusProductGarment(models.Model):
     _description = "Product Garment"
     _inherit = "pharmadus.catalog.mixin"
 
+    _sql_constraints = [
+        (
+            "pharmadus_product_garment_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos vestimentas con el mismo nombre en la misma compañía.",
+        ),
+    ]
+
 
 class PharmadusProductPurchaseLine(models.Model):
     _name = "pharmadus.product.purchase.line"
     _description = "Purchase Product Line"
     _inherit = "pharmadus.catalog.mixin"
 
+    _sql_constraints = [
+        (
+            "pharmadus_product_purchase_line_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos líneas de compras con el mismo nombre en la misma compañía.",
+        ),
+    ]
+
 
 class PharmadusProductPurchaseSubline(models.Model):
     _name = "pharmadus.product.purchase.subline"
     _description = "Purchase Product Subline"
     _inherit = "pharmadus.catalog.mixin"
+
+    _sql_constraints = [
+        (
+            "pharmadus_product_purchase_subline_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos sublíneas de compras con el mismo nombre en la misma compañía.",
+        ),
+    ]
 
     line_id = fields.Many2one(
         comodel_name="pharmadus.product.purchase.line",
@@ -104,3 +160,11 @@ class PharmadusProductGrouping(models.Model):
     _name = "pharmadus.product.grouping"
     _description = "Product Grouping"
     _inherit = "pharmadus.catalog.mixin"
+
+    _sql_constraints = [
+        (
+            "pharmadus_product_grouping_name_company_uniq",
+            "unique(name, company_id)",
+            "No puede haber dos agrupaciones con el mismo nombre en la misma compañía.",
+        ),
+    ]

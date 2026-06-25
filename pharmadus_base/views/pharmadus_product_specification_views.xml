@@ -263,6 +263,7 @@
             <list editable="bottom">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" optional="hide"/>
             </list>
         </field>
@@ -276,6 +277,7 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
                         <field name="sequence"/>
                         <field name="active"/>
                     </group>

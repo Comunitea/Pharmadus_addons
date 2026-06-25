@@ -1,0 +1,231 @@
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+from odoo import fields, models
+from odoo.osv import expression
+from odoo.tools.safe_eval import safe_eval
+
+
+ENTRY_LOCATION_XMLID = "stock.stock_location_company"
+STOCK_LOCATION_XMLID = "stock.stock_location_stock"
+QUALITY_RECEIPT_LOCATION_XMLID = "__export__.stock_location_14"
+QUALITY_REANALYSIS_LOCATION_XMLID = "__export__.stock_location_165"
+REJECTED_LOCATION_XMLID = "lot_states.stock_location_rejected"
+
+
+class StockLot(models.Model):
+    _inherit = "stock.lot"
+
+    pharmadus_packaging_type_id = fields.Many2one(
+        comodel_name="pharmadus.product.packaging.type",
+        string="Tipo de envase",
+        ondelete="restrict",
+    )
+    pharmadus_package_count = fields.Integer(
+        string="Nº de envases",
+    )
+    pharmadus_pallet_count = fields.Integer(
+        string="Nº de pallets",
+    )
+
+    def _pharmadus_auto_approve_if_configured(self):
+        lots_to_approve = self.filtered(lambda lot: lot.state == "pending")
+        if not lots_to_approve:
+            return self.env["stock.lot"]
+
+        category_route_ids = {}
+        approved_lots = self.env["stock.lot"]
+        for lot in lots_to_approve:
+            product_category = lot.product_id.categ_id
+            category_routes = category_route_ids.get(product_category.id)
+            if category_routes is None:
+                category_routes = product_category.total_route_ids
+                category_route_ids[product_category.id] = category_routes
+            if category_routes.filtered("pharmadus_auto_approve_lot"):
+                approved_lots |= lot
+
+        if approved_lots:
+            approved_lots.action_set_approved()
+        return approved_lots
+
+    def action_set_approved(self):
+        res = super().action_set_approved()
+        for lot in self.filtered("approved_date"):
+            approval_date = fields.Date.to_date(lot.approved_date)
+            latest_production = self.env["mrp.production"].search(
+                [("lot_producing_id", "=", lot.id)], order="id desc", limit=1
+            )
+            if latest_production:
+                latest_production.write({"actual_date": approval_date})
+        return res
+
+    def _pharmadus_is_sampling_label_case(self):
+        self.ensure_one()
+        packaging_type = self.pharmadus_packaging_type_id
+        if not packaging_type:
+            return False
+
+        sampling_packaging_xmlids = (
+            "pharmadus_base.pharmadus_packaging_saco_s",
+            "pharmadus_base.pharmadus_packaging_bolsa_s",
+            "pharmadus_base.pharmadus_packaging_caja_s",
+        )
+        sampling_packaging_ids = {
+            record.id
+            for xmlid in sampling_packaging_xmlids
+            if (record := self.env.ref(xmlid, raise_if_not_found=False))
+        }
+        if packaging_type.id not in sampling_packaging_ids:
+            return False
+
+        category_name = (self.product_id.categ_id.complete_name or "").lower()
+        return "materia prima" in category_name
+
+    def _pharmadus_get_labels_to_print(self):
+        self.ensure_one()
+        package_count = max(self.pharmadus_package_count or 0, 0)
+        pallet_count = max(self.pharmadus_pallet_count or 0, 0)
+        labels = [
+            {
+                "display": f"{index} de {package_count}",
+            }
+            for index in range(1, package_count + 1)
+        ]
+        labels.extend(
+            {
+                "display": "PALET",
+            }
+            for _ in range(pallet_count)
+        )
+        return labels
+
+    def _pharmadus_get_move_history_domain(self, lot_ids=None):
+        lot_ids = lot_ids or self.ids
+        return [
+            ("lot_id", "in", lot_ids),
+            ("state", "=", "done"),
+            "|",
+            ("picking_id", "=", False),
+            ("picking_id.picking_type_id.code", "!=", "internal"),
+        ]
+
+    def _pharmadus_get_detail_locations(self):
+        return {
+            "entry": self.env.ref(ENTRY_LOCATION_XMLID, raise_if_not_found=False),
+            "stock": self.env.ref(STOCK_LOCATION_XMLID, raise_if_not_found=False),
+            "receipt_quality": self.env.ref(
+                QUALITY_RECEIPT_LOCATION_XMLID, raise_if_not_found=False
+            ),
+            "reanalysis_quality": self.env.ref(
+                QUALITY_REANALYSIS_LOCATION_XMLID, raise_if_not_found=False
+            ),
+            "rejected": self.env.ref(REJECTED_LOCATION_XMLID, raise_if_not_found=False),
+        }
+
+    def _pharmadus_get_lot_details_domain(self):
+        self.ensure_one()
+        base_domain = [("lot_id", "=", self.id), ("state", "=", "done")]
+        locations = self._pharmadus_get_detail_locations()
+        entry_location = locations.get("entry")
+        stock_location = locations.get("stock")
+        receipt_quality_location = locations.get("receipt_quality")
+        reanalysis_quality_location = locations.get("reanalysis_quality")
+        rejected_location = locations.get("rejected")
+
+        detail_domains = []
+        if entry_location and receipt_quality_location:
+            detail_domains.append(
+                [
+                    ("location_id", "=", entry_location.id),
+                    ("location_dest_id", "=", receipt_quality_location.id),
+                ]
+            )
+            if stock_location:
+                detail_domains.append(
+                    [
+                        ("location_id", "=", receipt_quality_location.id),
+                        ("location_dest_id", "child_of", stock_location.id),
+                    ]
+                )
+            if rejected_location:
+                detail_domains.append(
+                    [
+                        ("location_id", "=", receipt_quality_location.id),
+                        ("location_dest_id", "=", rejected_location.id),
+                    ]
+                )
+
+        if stock_location and reanalysis_quality_location:
+            detail_domains.append(
+                [
+                    ("location_id", "child_of", stock_location.id),
+                    ("location_dest_id", "=", reanalysis_quality_location.id),
+                ]
+            )
+            detail_domains.append(
+                [
+                    ("location_id", "=", reanalysis_quality_location.id),
+                    ("location_dest_id", "child_of", stock_location.id),
+                ]
+            )
+
+        if stock_location and rejected_location:
+            detail_domains.append(
+                [
+                    ("location_id", "child_of", stock_location.id),
+                    ("location_dest_id", "=", rejected_location.id),
+                ]
+            )
+
+        if reanalysis_quality_location and rejected_location:
+            detail_domains.append(
+                [
+                    ("location_id", "=", reanalysis_quality_location.id),
+                    ("location_dest_id", "=", rejected_location.id),
+                ]
+            )
+
+        if not detail_domains:
+            return expression.AND([base_domain, [("id", "=", 0)]])
+        return expression.AND([base_domain, expression.OR(detail_domains)])
+
+    def action_open_pharmadus_move_history(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "stock.stock_move_line_action"
+        )
+        action["domain"] = self._pharmadus_get_move_history_domain(lot_ids=[self.id])
+        base_action_context = action.get("context", {})
+        if isinstance(base_action_context, str):
+            base_action_context = safe_eval(base_action_context, {})
+        action_context = dict(self.env.context)
+        action_context.update(base_action_context)
+        action_context.update(
+            {
+                "search_default_done": 1,
+                "default_lot_id": self.id,
+            }
+        )
+        action["context"] = action_context
+        return action
+
+    def action_open_pharmadus_lot_details(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "stock.stock_move_line_action"
+        )
+        action["name"] = "Detalles de lote"
+        action["domain"] = self._pharmadus_get_lot_details_domain()
+        base_action_context = action.get("context", {})
+        if isinstance(base_action_context, str):
+            base_action_context = safe_eval(base_action_context, {})
+        action_context = dict(self.env.context)
+        action_context.update(base_action_context)
+        action_context.update(
+            {
+                "search_default_done": 1,
+                "default_lot_id": self.id,
+                "pharmadus_show_lot_details": True,
+            }
+        )
+        action["context"] = action_context
+        return action

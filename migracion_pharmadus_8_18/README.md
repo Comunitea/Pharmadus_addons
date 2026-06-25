@@ -9,6 +9,8 @@ Utilidades de consola para migrar datos de Pharmadus desde Odoo 8 hacia Odoo 18 
 - `scripts/migrate_product_specifications.py`: primer script para migrar los campos de la pestaña "Especificaciones" de `product.template`.
 - `scripts/migrate_product_extra_categories.py`: inspecciona las categorías extra de Odoo 8 (`categ_ids`) y muestra por pantalla las ramas bajo `NoContable`.
   Excluye `Para_Comisiones`, `Farmacia` y `Horeca`.
+- `scripts/migrate_product_expiry.py`: migra a `expiration_time` usando `alert_time` en `Materia prima` y `use_time` en el resto, reinicia `use_time` y `removal_time`, y recalcula `alert_time` según la categoría del producto.
+- `scripts/migrate_user_signatures.py`: migra firmas de `res.users.signature_moved1` a `res.users.pharmadus_signature_image`.
 
 ## Requisitos
 
@@ -139,3 +141,80 @@ python3 migracion_pharmadus_8_18/scripts/migrate_product_specifications.py \
 - Si encuentra más de un producto destino con el mismo valor de emparejamiento, lo informa y lo omite.
 - Si un valor de catálogo no encuentra coincidencia en Odoo 18, lo informa y no toca ese campo en el producto destino.
 - El script no crea productos ni valores de catálogo. Solo asigna valores ya existentes en Odoo 18.
+
+## Caducidad y alerta de producto
+
+`scripts/migrate_product_expiry.py` aplica estas reglas sobre `product.template`:
+
+- Si la categoría origen contiene `Materia prima`, copia `alert_time` de Odoo 8 al campo `expiration_time` de Odoo 18.
+- Si la categoría origen no es `Materia prima`, copia `use_time` de Odoo 8 al campo `expiration_time` de Odoo 18.
+- Si la categoría del producto en Odoo 8 contiene `Materia prima`, fija `alert_time = 60` en Odoo 18.
+- Si la categoría no es `Materia prima` y `use_time` en origen es distinto de `0`, calcula `alert_time = (expiration_time // 3) + 60`.
+- Si ese cálculo sale negativo, el script lo ajusta a `0` y lo informa por pantalla.
+- Pone `use_time = 0` y `removal_time = 0` en Odoo 18 para los productos afectados por el script.
+- Activa `use_expiration_date` cuando el producto queda con `expiration_time` o `alert_time` informado.
+
+Simulación sin escribir cambios:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/migrate_product_expiry.py \
+  --config migracion_pharmadus_8_18/config.json
+```
+
+Escritura real:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/migrate_product_expiry.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --write
+```
+
+Limitar volumen para pruebas:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/migrate_product_expiry.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --limit 20
+```
+
+## Firmas de usuario
+
+`scripts/migrate_user_signatures.py` migra las firmas de usuario desde la columna local heredada `res_users.signature_moved1` al campo `pharmadus_signature_image` de Odoo 18.
+
+El script debe ejecutarse dentro de `odoo shell`, usa el `env` local, no usa XML-RPC y solo escribe la firma cuando el campo destino está vacío.
+
+Simulación sin escribir cambios:
+
+```bash
+docker compose -f /opt/pharmadus/devel.yaml exec -T odoo \
+  odoo shell -d devel --no-http <<'PY'
+import sys
+sys.path.insert(0, '/opt/odoo/custom/src/private')
+from migracion_pharmadus_8_18.scripts.migrate_user_signatures import main
+main(env, [])
+PY
+```
+
+Escritura real:
+
+```bash
+docker compose -f /opt/pharmadus/devel.yaml exec -T odoo \
+  odoo shell -d devel --no-http <<'PY'
+import sys
+sys.path.insert(0, '/opt/odoo/custom/src/private')
+from migracion_pharmadus_8_18.scripts.migrate_user_signatures import main
+main(env, ['--write'])
+PY
+```
+
+Limitar a usuarios concretos:
+
+```bash
+docker compose -f /opt/pharmadus/devel.yaml exec -T odoo \
+  odoo shell -d devel --no-http <<'PY'
+import sys
+sys.path.insert(0, '/opt/odoo/custom/src/private')
+from migracion_pharmadus_8_18.scripts.migrate_user_signatures import main
+main(env, ['--user-ids', '10,14,15'])
+PY
+```

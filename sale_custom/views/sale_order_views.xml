@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Acción: Muestras -->
+    <record id="action_sale_muestras" model="ir.actions.act_window">
+        <field name="name">Muestras</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="domain" eval="[('type_id', '=', ref('sale_custom.sale_type_muestra'))]"/>
+        <field name="context" eval="{'default_type_id': ref('sale_custom.sale_type_muestra')}"/>
+        <field name="search_view_id" ref="sale_order_type.view_sales_order_filter"/>
+    </record>
+
+    <!-- Acción: Reposición -->
+    <record id="action_sale_reposicion" model="ir.actions.act_window">
+        <field name="name">Reposición</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="domain" eval="[('type_id', '=', ref('sale_custom.sale_type_reposicion'))]"/>
+        <field name="context" eval="{'default_type_id': ref('sale_custom.sale_type_reposicion')}"/>
+        <field name="search_view_id" ref="sale_order_type.view_sales_order_filter"/>
+    </record>
+
+    <!-- Menú: Ventas > Pedidos > Muestras -->
+    <menuitem
+        id="menu_sale_muestras"
+        name="Muestras"
+        parent="sale.sale_order_menu"
+        action="action_sale_muestras"
+        sequence="25"/>
+
+    <!-- Menú: Ventas > Pedidos > Reposición -->
+    <menuitem
+        id="menu_sale_reposicion"
+        name="Reposición"
+        parent="sale.sale_order_menu"
+        action="action_sale_reposicion"
+        sequence="26"/>
+</odoo>
