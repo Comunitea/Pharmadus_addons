@@ -20,7 +20,6 @@
         "product_expiry",
         "quality_control_oca",
         "account",
-        "stock_account",
     ],
     "data": [
         "security/ir.model.access.csv",

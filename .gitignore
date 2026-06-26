@@ -208,5 +208,5 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Credenciales para la migración de datos
+# Local migration credentials
 /migracion_pharmadus_8_18/config.json

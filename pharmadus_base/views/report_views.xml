@@ -203,42 +203,4 @@
             {'search_default_current':1, 'search_default_supplier': 1, 'group_by':['invoice_date:month'], 'pharmadus_hide_sale_specs': True}
         </field>
     </record>
-
-    <record id="view_inventory_valuation_search_pharmadus" model="ir.ui.view">
-        <field name="name">stock.valuation.layer.search.pharmadus</field>
-        <field name="model">stock.valuation.layer</field>
-        <field name="inherit_id" ref="stock_account.view_inventory_valuation_search"/>
-        <field name="arch" type="xml">
-            <field name="product_tmpl_id" position="after">
-                <field name="pharmadus_quantity"/>
-                <field name="pharmadus_elements_per_outer_box"/>
-                <field name="pharmadus_elements_per_display_box"/>
-                <field name="pharmadus_elements_per_full_box"/>
-                <field name="pharmadus_line_id"/>
-                <field name="pharmadus_subline_id"/>
-                <field name="pharmadus_packaging_type_id"/>
-                <field name="pharmadus_base_form_id"/>
-                <field name="pharmadus_garment_id"/>
-                <field name="pharmadus_purchase_line_id"/>
-                <field name="pharmadus_purchase_subline_id"/>
-                <field name="pharmadus_grouping_id"/>
-                <field name="pharmadus_subgrouping"/>
-            </field>
-            <filter name="group_by_categ_id" position="after">
-                <filter string="Cantidad" name="group_by_pharmadus_quantity" context="{'group_by':'pharmadus_quantity'}"/>
-                <filter string="Elementos por caja contenedora" name="group_by_pharmadus_elements_per_outer_box" context="{'group_by':'pharmadus_elements_per_outer_box'}"/>
-                <filter string="Elementos por caja expositora" name="group_by_pharmadus_elements_per_display_box" context="{'group_by':'pharmadus_elements_per_display_box'}"/>
-                <filter string="Elementos por caja (Completo)" name="group_by_pharmadus_elements_per_full_box" context="{'group_by':'pharmadus_elements_per_full_box'}"/>
-                <filter string="Línea" name="group_by_pharmadus_line" context="{'group_by':'pharmadus_line_id'}"/>
-                <filter string="SubLínea" name="group_by_pharmadus_subline" context="{'group_by':'pharmadus_subline_id'}"/>
-                <filter string="Envasado" name="group_by_pharmadus_packaging_type" context="{'group_by':'pharmadus_packaging_type_id'}"/>
-                <filter string="Forma base" name="group_by_pharmadus_base_form" context="{'group_by':'pharmadus_base_form_id'}"/>
-                <filter string="Vestimenta" name="group_by_pharmadus_garment" context="{'group_by':'pharmadus_garment_id'}"/>
-                <filter string="Línea compras" name="group_by_pharmadus_purchase_line" context="{'group_by':'pharmadus_purchase_line_id'}"/>
-                <filter string="Sublínea compras" name="group_by_pharmadus_purchase_subline" context="{'group_by':'pharmadus_purchase_subline_id'}"/>
-                <filter string="Agrupación" name="group_by_pharmadus_grouping" context="{'group_by':'pharmadus_grouping_id'}"/>
-                <filter string="Subagrupación" name="group_by_pharmadus_subgrouping" context="{'group_by':'pharmadus_subgrouping'}"/>
-            </filter>
-        </field>
-    </record>
 </odoo>
