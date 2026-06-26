@@ -11,6 +11,7 @@ Utilidades de consola para migrar datos de Pharmadus desde Odoo 8 hacia Odoo 18 
   Excluye `Para_Comisiones`, `Farmacia` y `Horeca`.
 - `scripts/migrate_product_expiry.py`: migra a `expiration_time` usando `alert_time` en `Materia prima` y `use_time` en el resto, reinicia `use_time` y `removal_time`, y recalcula `alert_time` según la categoría del producto.
 - `scripts/migrate_user_signatures.py`: migra firmas de `res.users.signature_moved1` a `res.users.pharmadus_signature_image`.
+- `scripts/migrate_customer_valued_picking.py`: marca `res.partner.valued_picking` en todos los clientes de Odoo 18.
 
 ## Requisitos
 
@@ -217,4 +218,41 @@ sys.path.insert(0, '/opt/odoo/custom/src/private')
 from migracion_pharmadus_8_18.scripts.migrate_user_signatures import main
 main(env, ['--user-ids', '10,14,15'])
 PY
+```
+
+## Albaran valorado en clientes
+
+`scripts/migrate_customer_valued_picking.py` marca `valued_picking = True` en todos los partners cliente del Odoo 18 configurado en `target` (`customer_rank > 0`).
+
+El script usa XML-RPC contra el entorno destino y no necesita leer nada desde Odoo 8, aunque reutiliza el mismo `config.json` del paquete.
+
+Simulacion sin escribir cambios:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/migrate_customer_valued_picking.py \
+  --config migracion_pharmadus_8_18/config.json
+```
+
+Escritura real:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/migrate_customer_valued_picking.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --write
+```
+
+Limitar volumen para pruebas:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/migrate_customer_valued_picking.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --limit 20
+```
+
+Limitar a partners concretos:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/migrate_customer_valued_picking.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --partner-ids 10,14,15
 ```

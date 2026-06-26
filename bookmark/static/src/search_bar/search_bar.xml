@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
-    <t t-name="web.SearchBar.Facets.Inherit" t-inherit="web.SearchBar.Facets" t-inherit-mode="extension" owl="1">
-        <xpath expr="//div[hasclass('o_searchview_facet_label')]" position="attributes">
-            <attribute name="t-on-click">(ev) => this.onFacetLabelClick(ev, facet)</attribute>
-        </xpath>
-    </t>
-</templates>

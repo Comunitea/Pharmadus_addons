@@ -4,6 +4,7 @@ from . import pharmadus_product_specification
 from . import ir_model_data
 from . import purchase_requisition
 from . import product_template
+from . import res_partner
 from . import res_users
 from . import stock_route
 from . import stock_lot
