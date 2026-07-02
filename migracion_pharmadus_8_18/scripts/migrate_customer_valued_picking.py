@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import os
+import sys
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(CURRENT_DIR)
+if PARENT_DIR not in sys.path:
+    sys.path.insert(0, PARENT_DIR)
+
+from scripts.odoo_xmlrpc import OdooXmlRpcClient
+
+
+TARGET_FIELDS = ["name", "display_name", "customer_rank", "valued_picking", "active"]
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description=(
+            "Marca res.partner.valued_picking en todos los clientes de Odoo 18 "
+            "usando XML-RPC sobre el destino configurado."
+        )
+    )
+    parser.add_argument(
+        "--config",
+        required=True,
+        help="Ruta al fichero JSON de configuracion con credenciales de origen y destino.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Limite opcional de clientes a procesar.",
+    )
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Desplazamiento para la busqueda de clientes.",
+    )
+    parser.add_argument(
+        "--partner-ids",
+        default="",
+        help="IDs de res.partner, separados por comas, para procesar solo esos clientes.",
+    )
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="Escribe cambios en Odoo 18. Sin este parametro, se ejecuta en modo simulacion.",
+    )
+    return parser.parse_args(argv)
+
+
+def load_config(path):
+    with open(path, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def parse_id_list(raw_value):
+    if not raw_value:
+        return []
+    return [int(part.strip()) for part in raw_value.split(",") if part.strip()]
+
+
+def log(message):
+    print(message)
+
+
+def build_target_domain(partner_ids):
+    domain = [("customer_rank", ">", 0)]
+    if partner_ids:
+        domain.append(("id", "in", partner_ids))
+    return domain
+
+
+def format_partner_label(partner):
+    return "[id={}] {}".format(
+        partner["id"],
+        partner.get("display_name") or partner.get("name") or "-",
+    )
+
+
+def fetch_target_partners(target, partner_ids=None, limit=0, offset=0):
+    search_kwargs = {"offset": offset, "order": "id"}
+    if limit:
+        search_kwargs["limit"] = limit
+    return target.search_read(
+        "res.partner",
+        build_target_domain(partner_ids or []),
+        fields=TARGET_FIELDS,
+        **search_kwargs
+    )
+
+
+def migrate(target, partner_ids=None, limit=0, offset=0, write=False):
+    counters = {
+        "updated": 0,
+        "would_update": 0,
+        "already_marked": 0,
+    }
+    partners = fetch_target_partners(
+        target,
+        partner_ids=partner_ids,
+        limit=limit,
+        offset=offset,
+    )
+
+    log("Modo: {}".format("ESCRITURA" if write else "SIMULACION"))
+    log("Clientes detectados: {}".format(len(partners)))
+
+    for partner in partners:
+        if partner.get("valued_picking"):
+            counters["already_marked"] += 1
+            log("OMITIDO {} -> already_marked".format(format_partner_label(partner)))
+            continue
+
+        if write:
+            target.write("res.partner", [partner["id"]], {"valued_picking": True})
+            counters["updated"] += 1
+            log("UPDATED {}".format(format_partner_label(partner)))
+        else:
+            counters["would_update"] += 1
+            log("WOULD_UPDATE {}".format(format_partner_label(partner)))
+
+    log("Resumen:")
+    for key, value in counters.items():
+        log("  {}: {}".format(key, value))
+    return counters
+
+
+def run(argv=None):
+    args = parse_args(argv)
+    config = load_config(args.config)
+    target = OdooXmlRpcClient(**config["target"])
+    return migrate(
+        target,
+        partner_ids=parse_id_list(args.partner_ids),
+        limit=args.limit,
+        offset=args.offset,
+        write=args.write,
+    )
+
+
+if __name__ == "__main__":
+    run()

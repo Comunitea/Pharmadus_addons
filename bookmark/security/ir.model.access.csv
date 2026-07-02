@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_search_history,access.search.history,model_search_history,base.group_user,1,1,1,1
-access_res_bookmark,access.res.bookmark,model_res_bookmark,base.group_user,1,1,1,1
-wizard_share_bookmark,access.share.bookmark,model_wizard_share_bookmark,base.group_user,1,1,1,1
