@@ -50,6 +50,7 @@
                         <th name="th_description" class="text-start">Description</th>
                         <th name="th_quantity" class="text-end text-nowrap">Quantity</th>
                         <th name="th_uom" class="text-end text-nowrap">UoM</th>
+                        <th name="th_priceunit" class="text-end text-nowrap">Unit Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,6 +79,11 @@
                                     <span t-field="line.product_id.display_name"/>
                                 </td>
                             </t>
+                            <td name="td_priceunit" class="text-end text-nowrap">
+                                <span
+                                    t-field="line.price_unit"
+                                />
+                            </td>                            
                         </tr>
                     </t>
                 </tbody>
