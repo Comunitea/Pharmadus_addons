@@ -7,6 +7,11 @@ from odoo.tools import SQL
 class AccountInvoiceReport(models.Model):
     _inherit = "account.invoice.report"
 
+    partner_shipping_id = fields.Many2one(
+        comodel_name="res.partner",
+        string="Delivery Address",
+        readonly=True,
+    )
     pharmadus_line_id = fields.Many2one(
         comodel_name="pharmadus.product.line",
         string="Línea",
@@ -40,6 +45,7 @@ class AccountInvoiceReport(models.Model):
             "invoice_date_due",
             "invoice_payment_term_id",
             "partner_bank_id",
+            "partner_shipping_id",
         ],
         "account.move.line": [
             "quantity",
@@ -75,6 +81,7 @@ class AccountInvoiceReport(models.Model):
             "%s, template.pharmadus_line_id AS pharmadus_line_id, "
             "template.pharmadus_subline_id AS pharmadus_subline_id, "
             "template.pharmadus_purchase_line_id AS pharmadus_purchase_line_id, "
-            "template.pharmadus_purchase_subline_id AS pharmadus_purchase_subline_id",
+            "template.pharmadus_purchase_subline_id AS pharmadus_purchase_subline_id, "
+            "move.partner_shipping_id AS partner_shipping_id",
             super()._select(),
         )

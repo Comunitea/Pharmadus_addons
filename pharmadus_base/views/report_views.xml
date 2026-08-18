@@ -85,6 +85,10 @@
         <field name="model">account.invoice.report</field>
         <field name="inherit_id" ref="account.account_invoice_report_view_tree"/>
         <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="commercial_partner_id" string="Entidad comercial" optional="show"/>
+                <field name="partner_shipping_id" string="Dirección de entrega" optional="show"/>
+            </field>
             <field name="product_id" position="after">
                 <field
                     name="pharmadus_line_id"
@@ -116,6 +120,10 @@
         <field name="inherit_id" ref="account.view_account_invoice_report_pivot"/>
         <field name="arch" type="xml">
             <field name="invoice_date" position="after">
+                <field name="commercial_partner_id" string="Entidad comercial" type="row"/>
+                <field name="partner_shipping_id" string="Dirección de entrega" type="row"/>
+            </field>
+            <field name="invoice_date" position="after">
                 <field
                     name="pharmadus_line_id"
                     type="row"
@@ -145,6 +153,10 @@
         <field name="model">account.invoice.report</field>
         <field name="inherit_id" ref="account.view_account_invoice_report_search"/>
         <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="commercial_partner_id" string="Entidad comercial"/>
+                <field name="partner_shipping_id" string="Dirección de entrega"/>
+            </field>
             <field name="product_id" position="after">
                 <field
                     name="pharmadus_line_id"
@@ -187,6 +199,16 @@
                     name="group_by_invoice_pharmadus_purchase_subline"
                     context="{'group_by':'pharmadus_purchase_subline_id'}"
                     invisible="context.get('pharmadus_hide_purchase_specs')"
+                />
+                <filter
+                    string="Entidad comercial"
+                    name="group_by_invoice_commercial_partner"
+                    context="{'group_by':'commercial_partner_id'}"
+                />
+                <filter
+                    string="Dirección de entrega"
+                    name="group_by_invoice_partner_shipping"
+                    context="{'group_by':'partner_shipping_id'}"
                 />
             </filter>
         </field>
