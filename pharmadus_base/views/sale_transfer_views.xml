@@ -58,10 +58,12 @@
                                         <create name="add_section_control" string="Añadir una sección" context="{'default_display_type': 'line_section'}"/>
                                         <create name="add_note_control" string="Añadir una nota" context="{'default_display_type': 'line_note'}"/>
                                     </control>
-                                     <field name="product_template_id"  widget="sol_product_many2one" options="{'no_open': True}" placeholder="Type to find a product..."/>
+                                     <field name="product_template_id"  widget="sol_product_many2one" options="{'no_open': True}" placeholder="Type to find a product..." context="{'pricelist': parent.pricelist_id}"/>
                                      <field name="product_uom_qty"/>
                                     <field name="product_uom" options="{'no_open': True}" force_save="1"/>
                                     <field name="price_unit"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="price_total" string="Total" widget="monetary" sum="Total"/>
                                     <field name="company_id" column_invisible="True"/>
                                 </list>
                                 <form>
