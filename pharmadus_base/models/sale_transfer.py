@@ -251,6 +251,10 @@ class SaleTransferLine(models.Model):
         string="Extra Values",
         compute='_compute_no_variant_attribute_values',
         store=True, readonly=False, precompute=True, ondelete='restrict')
+    price_total = fields.Monetary(
+        string="Total",
+        compute='_compute_amount',
+        store=True, precompute=True)
 
     @api.depends('product_id', 'product_uom', 'product_uom_qty')
     def _compute_price_unit(self):
@@ -419,3 +423,9 @@ class SaleTransferLine(models.Model):
             for ptav in line.product_no_variant_attribute_value_ids:
                 if ptav._origin not in valid_values:
                     line.product_no_variant_attribute_value_ids -= ptav
+
+    @api.depends('product_uom_qty', 'price_unit')
+    def _compute_amount(self):
+        for line in self:
+            line.price_total = line.price_unit * line.product_uom_qty
+
