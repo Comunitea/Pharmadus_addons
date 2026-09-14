@@ -32,6 +32,22 @@ copian al espejo local del workspace:
     `-- project-graph/SKILL.md
 ```
 
+### Sincronizar (un solo comando)
+
+La implementación versionada es `.skills/tools/sync-to-dsh.ps1`. Se ejecuta desde la
+máquina local, cuya clave `~/.ssh/id_ed25519_dsh_sync` está autorizada en el
+`authorized_keys` del servidor (usuario `odoo`, host `192.168.192.103`):
+
+```powershell
+pwsh -File "$env:USERPROFILE\.dsh\tools\sync-pharmadus-skills.ps1"              # sincroniza
+pwsh -File "$env:USERPROFILE\.dsh\tools\sync-pharmadus-skills.ps1" -Mode Check # solo comprueba (exit 1 si hay drift)
+```
+
+El lanzador local descarga este script del repo por SSH y lo ejecuta, de modo que la lógica
+vive solo aquí. El script compara el `sha256` del origen con el anotado en el banner de
+cada copia, verifica además que el cuerpo no se ha alterado y reescribe solo lo que no
+cuadra (UTF-8 sin BOM).
+
 Reglas:
 
 - Cada copia local empieza con un banner HTML que registra el `sha256`, el tamaño y la
