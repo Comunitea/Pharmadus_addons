@@ -1,4 +1,13 @@
-# Skill: project-graph
+---
+name: project-graph
+description: >
+  Grafo estructural regenerable del repositorio Pharmadus: addons, dependencias,
+  modelos, herencias, campos, comodelos, vistas, menus, acciones, informes,
+  seguridad y CSV, sin conectar a Odoo ni a PostgreSQL. Usala antes de cambios no
+  triviales en addons Odoo 18 y siempre que haya que evaluar el impacto de un
+  cambio entre addons o mantener actualizado el grafo del proyecto.
+globs: "**/*.{py,xml,csv}"
+---
 
 # Pharmadus Project Structural Graph
 

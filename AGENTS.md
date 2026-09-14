@@ -17,3 +17,27 @@ Reglas de uso:
 - Para cambios no triviales en manifests, modelos, vistas XML, menús, acciones, seguridad o datos CSV, consulta `.skills/project-graph/SKILL.md` y mantén actualizado su grafo.
 - Si cambias cualquier `__manifest__.py`, modelo Odoo, XML de vistas/datos/seguridad, CSV de addons o añades/eliminas/renombras addons, ejecuta `python3 .skills/project-graph/scripts/build_project_graph.py` antes de finalizar y conserva los archivos generados.
 - Si hay discrepancias entre una skill y el código real del repositorio, prevalece el código del repositorio.
+
+## Carga de estas skills en DSH
+
+El agente DSH **no descubre skills en el servidor**: su proveedor de skills lee el sistema
+de ficheros local (`~/.dsh/skills` y `<projectRoot>/.dsh/skills`), por lo que lo que esté
+en `.skills/` no se autocarga. Para que las tres skills del repo se carguen solas, se
+copian al espejo local del workspace:
+
+```text
+%USERPROFILE%\.dsh\remote\<hostId>\<ruta remota en base64>\.dsh\skills\
+    |-- odoo-18/SKILL.md
+    |-- odoo-dev/SKILL.md
+    `-- project-graph/SKILL.md
+```
+
+Reglas:
+
+- Cada copia local empieza con un banner HTML que registra el `sha256`, el tamaño y la
+  fecha del fichero de origen; sirve para detectar copias desactualizadas.
+- Si modificas cualquier `SKILL.md` de `.skills/`, **resincroniza las copias locales en la
+  misma sesión**; si no, DSH seguirá autocargando la versión antigua.
+- Toda skill de `.skills/` debe empezar por frontmatter YAML con `name` (kebab-case) y
+  `description`; sin él el cargador la descarta (era el caso de `project-graph`).
+- La versión autoritativa es siempre la de este repositorio, nunca la copia local.
