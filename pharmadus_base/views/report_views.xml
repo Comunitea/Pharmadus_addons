@@ -1,51 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="sale_report_view_tree_pharmadus" model="ir.ui.view">
-        <field name="name">sale.report.view.list.pharmadus</field>
-        <field name="model">sale.report</field>
-        <field name="inherit_id" ref="sale.sale_report_view_tree"/>
-        <field name="arch" type="xml">
-            <field name="product_id" position="after">
-                <field name="pharmadus_line_id" optional="show"/>
-                <field name="pharmadus_subline_id" optional="show"/>
-            </field>
-        </field>
-    </record>
-
-    <record id="view_order_product_pivot_pharmadus" model="ir.ui.view">
-        <field name="name">sale.report.pivot.pharmadus</field>
-        <field name="model">sale.report</field>
-        <field name="inherit_id" ref="sale.view_order_product_pivot"/>
-        <field name="arch" type="xml">
-            <field name="date" position="after">
-                <field name="partner_category_id" type="row"/>
-                <field name="partner_category_parent_id" type="row"/>
-                <field name="pharmadus_line_id" type="row"/>
-                <field name="pharmadus_subline_id" type="row"/>
-            </field>
-        </field>
-    </record>
-
-    <record id="view_order_product_search_pharmadus" model="ir.ui.view">
-        <field name="name">sale.report.search.pharmadus</field>
-        <field name="model">sale.report</field>
-        <field name="inherit_id" ref="sale.view_order_product_search"/>
-        <field name="arch" type="xml">
-            <field name="product_tmpl_id" position="after">
-                <field name="partner_category_id"/>
-                <field name="partner_category_parent_id"/>
-                <field name="pharmadus_line_id"/>
-                <field name="pharmadus_subline_id"/>
-            </field>
-            <filter name="Category" position="after">
-                <filter string="Categoría de empresa" name="group_by_partner_category" context="{'group_by':'partner_category_id'}"/>
-                <filter string="Categoría padre de empresa" name="group_by_partner_category_parent" context="{'group_by':'partner_category_parent_id'}"/>
-                <filter string="Línea" name="group_by_pharmadus_line" context="{'group_by':'pharmadus_line_id'}"/>
-                <filter string="SubLínea" name="group_by_pharmadus_subline" context="{'group_by':'pharmadus_subline_id'}"/>
-            </filter>
-        </field>
-    </record>
-
     <record id="purchase_report_view_tree_pharmadus" model="ir.ui.view">
         <field name="name">purchase.report.view.list.pharmadus</field>
         <field name="model">purchase.report</field>

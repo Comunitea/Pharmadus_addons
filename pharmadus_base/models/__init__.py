@@ -3,6 +3,7 @@
 from . import pharmadus_product_specification
 from . import ir_model_data
 from . import purchase_requisition
+from . import product_product
 from . import product_template
 from . import res_partner
 from . import res_users

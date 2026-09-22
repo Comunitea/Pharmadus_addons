@@ -7,6 +7,19 @@ from odoo.exceptions import ValidationError
 class ProductTemplate(models.Model):
     _inherit = "product.template"
 
+    @api.depends("name", "default_code")
+    @api.depends_context("display_default_code", "lang")
+    def _compute_display_name(self):
+        super()._compute_display_name()
+        if not self.env.context.get("display_default_code", True):
+            return
+        for template in self:
+            prefix = f"[{template.default_code}] "
+            if template.default_code and template.display_name.startswith(prefix):
+                template.display_name = (
+                    f"{template.display_name[len(prefix):]} [{template.default_code}]"
+                )
+
     pharmadus_quantity = fields.Integer(
         string="Cantidad",
         default=1,

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_pharmadus" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[hasclass('row')][1]" position="replace">
+            <div class="row">
+                <t t-set="information_block">
+                    <div name="commercial_partner_address_block">
+                        <address
+                            class="mb-0"
+                            t-field="o.commercial_partner_id"
+                            t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'
+                        />
+                        <div t-if="o.commercial_partner_id.vat">
+                            <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label"/>
+                            <t t-else="">Tax ID</t>: <span t-field="o.commercial_partner_id.vat"/>
+                        </div>
+                    </div>
+                </t>
+                <t t-set="address">
+                    <strong class="d-block mt-3">Dirección de facturación</strong>
+                    <address
+                        class="mb-0"
+                        t-field="o.partner_id"
+                        t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'
+                    />
+                    <div t-if="o.partner_id.vat">
+                        <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label"/>
+                        <t t-else="">Tax ID</t>: <span t-field="o.partner_id.vat"/>
+                    </div>
+                </t>
+            </div>
+        </xpath>
+    </template>
+</odoo>
