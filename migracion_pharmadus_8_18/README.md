@@ -13,7 +13,7 @@ Utilidades de consola para migrar datos de Pharmadus desde Odoo 8 hacia Odoo 18 
 - `scripts/migrate_user_signatures.py`: migra firmas de `res.users.signature_moved1` a `res.users.pharmadus_signature_image`.
 - `scripts/migrate_customer_valued_picking.py`: marca `res.partner.valued_picking` en todos los clientes de Odoo 18.
 - `scripts/create_production_lines.py`: crea las líneas de producción de SIGI (modelo `mrp.routing` de Odoo 8) como centros de trabajo de Odoo 18, con su etiqueta.
-- `scripts/export_source_lines_map.py` y `scripts/assign_production_lines_to_boms.py`: exportan desde Odoo 8 la primera línea de cada plantilla de producto y la asignan a las operaciones de sus BoMs en Odoo 18.
+- `scripts/export_source_lines_map.py` y `scripts/add_production_line_operations.py`: exportan desde Odoo 8 la primera línea de cada plantilla de producto y añaden a cada BoM de Odoo 18 una operación con esa línea.
 
 ## Requisitos
 
@@ -334,10 +334,14 @@ Opciones útiles:
   contra el proxy local de desarrollo cuando `odoo.pharmadus.com` no es alcanzable.
 - `--timeout 60`: timeout de las llamadas XML-RPC.
 
-## Asignar la línea de producción a las BoMs
+## Añadir la línea de producción a las BoMs
 
-Odoo 18 **no tiene ningún campo de línea en la BoM** (ni existe `mrp.routing`): el único
-sitio donde puede vivir la línea es el **centro de trabajo de las operaciones** de la BoM.
+La línea de producción de Odoo 8 (`mrp.routing`) se representa en Odoo 18 como **una
+operación de la BoM** cuyo centro de trabajo es el de esa línea: el nombre de la operación es
+el nombre de la línea (por ejemplo `Linea 01`) y el centro de trabajo lleva su código
+(`LIN01`). Odoo 18 no tiene ningún campo de línea en la BoM, así que este es el sitio donde
+vive.
+
 El flujo va en dos fases porque no suele haber conectividad simultánea a SIGI y al Odoo 18.
 
 Fase 1, donde Odoo 8 sea alcanzable: exporta `producto -> primera línea` a un JSON. La
@@ -350,30 +354,30 @@ python3 migracion_pharmadus_8_18/scripts/export_source_lines_map.py \
   --out sigi_lines_map.json --write
 ```
 
-Fase 2, donde Odoo 18 sea alcanzable: apunta las operaciones de cada BoM al centro de
-trabajo de la línea de su producto.
+Fase 2, donde Odoo 18 sea alcanzable: añade a cada BoM la operación de la línea de su
+producto (secuencia 10, duración manual 0 minutos).
 
 ```bash
 # simulación
-python3 migracion_pharmadus_8_18/scripts/assign_production_lines_to_boms.py \
+python3 migracion_pharmadus_8_18/scripts/add_production_line_operations.py \
   --config migracion_pharmadus_8_18/config.json --map sigi_lines_map.json
 
 # escritura, guardando fichero de reversión
-python3 migracion_pharmadus_8_18/scripts/assign_production_lines_to_boms.py \
+python3 migracion_pharmadus_8_18/scripts/add_production_line_operations.py \
   --config migracion_pharmadus_8_18/config.json --map sigi_lines_map.json \
-  --write --revert-out /tmp/assign_lines_revert.json
+  --write --revert-out /tmp/add_line_operations_revert.json
 ```
 
 Notas:
 
-- Solo se pueden asignar BoMs que **ya tengan operaciones**. Las que no las tengan se
-  informan aparte (`boms_sin_operaciones`) y habrá que asignarles la línea cuando se
-  migren sus operaciones.
-- Con `--write` se guarda un fichero de reversión con el centro de trabajo anterior de
-  cada operación tocada, por si hay que deshacer.
-- `--target-url` permite apuntar al proxy local de desarrollo cuando el destino del
-  `config.json` no sea alcanzable.
-- Resultado de la primera pasada en el entorno de desarrollo: 1.462 BoMs activas, 1.368 con
-  línea en origen, **7 asignadas** (40 operaciones), 1.361 sin operaciones y 94 BoMs sin
-  línea en origen.
-
+- Es **idempotente**: si la BoM ya tiene una operación con ese nombre y ese centro de trabajo,
+  no crea otra.
+- Por defecto **elimina** las operaciones que ya tuviera la BoM (`--keep-existing` para no
+  hacerlo). Borrar una operación **no** elimina órdenes de trabajo: `mrp.workorder.operation_id`
+  no tiene `ondelete='cascade'`.
+- `--limit N` procesa solo las primeras N BoMs (pruebas) y `--target-url` permite apuntar al
+  proxy local de desarrollo cuando el destino del `config.json` no sea alcanzable.
+- Con `--write` se guarda un fichero de reversión con las operaciones creadas y las eliminadas.
+- Resultado en el entorno de desarrollo: 1.462 BoMs activas, 1.368 con línea en origen,
+  **1.368 operaciones creadas** (una por BoM), 6 BoMs con operaciones sustituidas y 94 BoMs sin
+  línea en origen que conservan sus operaciones de etapa.
