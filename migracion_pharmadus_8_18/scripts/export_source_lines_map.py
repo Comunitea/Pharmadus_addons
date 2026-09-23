@@ -5,8 +5,8 @@
 En Odoo 8 la linea de produccion era un registro de ``mrp.routing`` y cada
 plantilla de producto declaraba sus lineas validas en
 ``product.template.routing_ids``. Este script genera un JSON con, para cada
-producto, la PRIMERA de esas lineas (la de menor id de ``mrp.routing``, que es el
-orden en el que Odoo 8 devuelve el many2many).
+producto, la PRIMERA de esas lineas, ordenando los **codigos alfabeticamente**
+(``--order code``, por defecto) o por id de ``mrp.routing`` (``--order id``).
 
 El JSON resultante lo consume ''assign_production_lines_to_boms.py'' en el
 entorno de Odoo 18. Se hace en dos fases porque no suele haber conectividad
@@ -50,6 +50,15 @@ def parse_args():
         help="Escribe el fichero JSON. Sin este parametro solo muestra el resumen.",
     )
     parser.add_argument(
+        "--order",
+        choices=["code", "id"],
+        default="code",
+        help=(
+            "Criterio para elegir la primera linea de cada plantilla: 'code' ordena los "
+            "codigos alfabeticamente (por defecto) y 'id' por id de mrp.routing."
+        ),
+    )
+    parser.add_argument(
         "--timeout",
         type=int,
         default=60,
@@ -67,7 +76,7 @@ def log(message):
     print(message)
 
 
-def build_map(source):
+def build_map(source, order="code"):
     products = source.search_read(
         "product.template",
         [("routing_ids", "!=", False)],
@@ -80,6 +89,11 @@ def build_map(source):
         for record in source.read("mrp.routing", routing_ids, fields=["code", "name"])
     }
 
+    def order_key(routing_id):
+        if order == "code":
+            return ((routings[routing_id]["code"] or "").upper(), routing_id)
+        return (routing_id,)
+
     mapping = {}
     skipped_no_code = 0
     for product in products:
@@ -87,16 +101,16 @@ def build_map(source):
         if not code:
             skipped_no_code += 1
             continue
-        first_id = min(product["routing_ids"])
+        ordered_ids = sorted(product["routing_ids"], key=order_key)
+        first_id = ordered_ids[0]
         routing = routings[first_id]
         mapping[code] = {
             "line_code": routing["code"],
             "line_name": routing["name"],
             "odoo8_routing_id": first_id,
             "odoo8_product_id": product["id"],
-            "odoo8_lines_all": [
-                routings[rid]["code"] for rid in sorted(product["routing_ids"])
-            ],
+            "odoo8_lines_all": [routings[rid]["code"] for rid in ordered_ids],
+            "order": order,
         }
     return mapping, len(products), skipped_no_code, len(routing_ids)
 
@@ -107,12 +121,13 @@ def run():
     socket.setdefaulttimeout(args.timeout)
     source = OdooXmlRpcClient(**config["source"])
 
-    mapping, total_products, skipped_no_code, total_routings = build_map(source)
+    mapping, total_products, skipped_no_code, total_routings = build_map(source, args.order)
 
     log("Productos de Odoo 8 con lineas: {}".format(total_products))
     log("  exportados: {}".format(len(mapping)))
     log("  omitidos sin default_code: {}".format(skipped_no_code))
     log("  lineas distintas referenciadas: {}".format(total_routings))
+    log("  criterio de primera linea: {}".format(args.order))
 
     if not args.write:
         log("")

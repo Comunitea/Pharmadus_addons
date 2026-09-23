@@ -345,8 +345,8 @@ vive.
 El flujo va en dos fases porque no suele haber conectividad simultánea a SIGI y al Odoo 18.
 
 Fase 1, donde Odoo 8 sea alcanzable: exporta `producto -> primera línea` a un JSON. La
-"primera línea" es la de **menor id de `mrp.routing`** en Odoo 8, que es el orden en el que
-Odoo devuelve `product.template.routing_ids`.
+"primera línea" se elige ordenando los **códigos de línea alfabéticamente** (`--order code`,
+que es el valor por defecto); con `--order id` se usa el id de `mrp.routing`.
 
 ```bash
 python3 migracion_pharmadus_8_18/scripts/export_source_lines_map.py \
@@ -381,3 +381,11 @@ Notas:
 - Resultado en el entorno de desarrollo: 1.462 BoMs activas, 1.368 con línea en origen,
   **1.368 operaciones creadas** (una por BoM), 6 BoMs con operaciones sustituidas y 94 BoMs sin
   línea en origen que conservan sus operaciones de etapa.
+- El criterio de orden importa: con los códigos alfabéticos, respecto al orden por id cambian
+  de línea 149 plantillas de producto (159 BoMs en el entorno de desarrollo). Las líneas bajan
+  mucho en `REP01` (Reprocesado, que ordena casi al final) y suben en `LIN05` y `EMS01`.
+- Nota de rendimiento: borrar operaciones por el ORM es muy lento en esta base porque el modelo
+  hereda `mail.thread` y arrastra `mail_message` (millones de filas). Para borrados masivos
+  conviene hacerlo en SQL teniendo en cuenta las claves ajenas que apuntan a
+  `mrp.routing.workcenter` (`mrp_workorder`, `stock_move`, `mrp_bom_line`, `mrp_bom_byproduct`
+  y las dos tablas de relación).
