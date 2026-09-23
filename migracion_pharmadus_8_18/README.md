@@ -12,6 +12,7 @@ Utilidades de consola para migrar datos de Pharmadus desde Odoo 8 hacia Odoo 18 
 - `scripts/migrate_product_expiry.py`: migra a `expiration_time` usando `alert_time` en `Materia prima` y `use_time` en el resto, reinicia `use_time` y `removal_time`, y recalcula `alert_time` según la categoría del producto.
 - `scripts/migrate_user_signatures.py`: migra firmas de `res.users.signature_moved1` a `res.users.pharmadus_signature_image`.
 - `scripts/migrate_customer_valued_picking.py`: marca `res.partner.valued_picking` en todos los clientes de Odoo 18.
+- `scripts/create_production_lines.py`: crea las líneas de producción de SIGI (modelo `mrp.routing` de Odoo 8) como centros de trabajo de Odoo 18, con su etiqueta.
 
 ## Requisitos
 
@@ -288,3 +289,47 @@ Se pueden limitar canales o documentos concretos con `--channel-ids`,
 `name`; las facturas usan `number` en Odoo 8 y `name` en Odoo 18; los albaranes
 se emparejan por `name`. Los registros que no cumplan una coincidencia única se
 informan y no se modifican.
+
+## Líneas de producción
+
+`scripts/create_production_lines.py` replica las **líneas de producción** de Odoo 8.
+En SIGI no eran centros de trabajo: eran registros de `mrp.routing` (17 rutas con
+código `LIN01`, `FUS01`, `EMS01`…). Odoo 18 ya no tiene ese modelo, así que se crean
+como centros de trabajo (`mrp.workcenter`) con el mismo código y nombre, más la
+etiqueta de centro de trabajo `Línea de producción` para poder separarlas con un
+filtro de las etapas de proceso (Acopio, Acondicionamiento, Fabricación…).
+
+Características:
+
+- El listado de líneas está en el propio script, con el id y las OF históricas de cada
+  ruta en Odoo 8 como comentario.
+- Es idempotente: empareja por `code`, no duplica y no sobrescribe el nombre de un
+  centro existente (también detecta centros archivados).
+- Crea los centros con capacidad 1, eficiencia 100 % y coste horario 0, equivalentes a
+  los valores que tenían las rutas en Odoo 8.
+- Sin `--write` solo informa de lo que haría.
+
+Simulación (contra el destino del `config.json`):
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/create_production_lines.py \
+  --config migracion_pharmadus_8_18/config.json
+```
+
+Escritura real, después de realizar un backup:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/create_production_lines.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --write
+```
+
+Opciones útiles:
+
+- `--codes LIN01,FUS01`: procesa solo esas líneas (comprueba el código antes de escribir).
+- `--tag-name "Otra etiqueta"`: cambia el nombre de la etiqueta agrupadora.
+- `--no-tag`: crea los centros sin etiqueta.
+- `--target-url http://127.0.0.1:18069`: sobrescribe la URL de destino, útil para probar
+  contra el proxy local de desarrollo cuando `odoo.pharmadus.com` no es alcanzable.
+- `--timeout 60`: timeout de las llamadas XML-RPC.
+
