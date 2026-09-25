@@ -13,6 +13,7 @@
         "mail",
         "sales_team",
         "sale",
+        "sale_stock",
         "purchase",
         "purchase_requisition",
         "stock",

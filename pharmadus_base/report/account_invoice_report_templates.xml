@@ -30,5 +30,26 @@
                 </t>
             </div>
         </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']" position="before">
+            <t t-set="lot_values" t-value="o._get_invoiced_lot_values()"/>
+        </xpath>
+        <xpath expr="//td[@name='account_invoice_line_name']" position="inside">
+            <t t-set="line_lot_values" t-value="[lot_value for lot_value in lot_values if lot_value.get('product_id') == line.product_id.id]"/>
+            <div t-if="line_lot_values" class="text-muted small mt-1">
+                <div t-foreach="line_lot_values" t-as="lot_value">
+                    <span>Lote: </span><span t-out="lot_value['lot_name']"/>
+                    <span> - Cantidad: </span><span t-out="lot_value['quantity']"/>
+                    <span t-if="lot_value['uom_name']" t-out="lot_value['uom_name']" groups="uom.group_uom"/>
+                    <span t-if="lot_value['use_date']">
+                        <span> - Consumo preferente: </span><span t-out="lot_value['use_date']" t-options='{"widget": "date", "format": "MM/yyyy"}'/>
+                    </span>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="report_invoice_document_lot_lines_pharmadus" inherit_id="account.report_invoice_document">
+        <xpath expr="//table[@name='invoice_snln_table']" position="replace"/>
     </template>
 </odoo>

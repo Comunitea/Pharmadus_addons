@@ -14,3 +14,4 @@ from . import stock_forecasted
 from . import sale_transfer
 from . import stock_valuation_layer
 from . import stock_lot_wizard
+from . import account_move
