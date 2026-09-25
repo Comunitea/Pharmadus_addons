@@ -12,6 +12,8 @@ Utilidades de consola para migrar datos de Pharmadus desde Odoo 8 hacia Odoo 18 
 - `scripts/migrate_product_expiry.py`: migra a `expiration_time` usando `alert_time` en `Materia prima` y `use_time` en el resto, reinicia `use_time` y `removal_time`, y recalcula `alert_time` según la categoría del producto.
 - `scripts/migrate_user_signatures.py`: migra firmas de `res.users.signature_moved1` a `res.users.pharmadus_signature_image`.
 - `scripts/migrate_customer_valued_picking.py`: marca `res.partner.valued_picking` en todos los clientes de Odoo 18.
+- `scripts/create_production_lines.py`: crea las líneas de producción de SIGI (modelo `mrp.routing` de Odoo 8) como centros de trabajo de Odoo 18, con su etiqueta.
+- `scripts/export_source_lines_map.py` y `scripts/add_production_line_operations.py`: exportan desde Odoo 8 la primera línea de cada plantilla de producto y añaden a cada BoM de Odoo 18 una operación con esa línea.
 
 ## Requisitos
 
@@ -288,3 +290,102 @@ Se pueden limitar canales o documentos concretos con `--channel-ids`,
 `name`; las facturas usan `number` en Odoo 8 y `name` en Odoo 18; los albaranes
 se emparejan por `name`. Los registros que no cumplan una coincidencia única se
 informan y no se modifican.
+
+## Líneas de producción
+
+`scripts/create_production_lines.py` replica las **líneas de producción** de Odoo 8.
+En SIGI no eran centros de trabajo: eran registros de `mrp.routing` (17 rutas con
+código `LIN01`, `FUS01`, `EMS01`…). Odoo 18 ya no tiene ese modelo, así que se crean
+como centros de trabajo (`mrp.workcenter`) con el mismo código y nombre, más la
+etiqueta de centro de trabajo `Línea de producción` para poder separarlas con un
+filtro de las etapas de proceso (Acopio, Acondicionamiento, Fabricación…).
+
+Características:
+
+- El listado de líneas está en el propio script, con el id y las OF históricas de cada
+  ruta en Odoo 8 como comentario.
+- Es idempotente: empareja por `code`, no duplica y no sobrescribe el nombre de un
+  centro existente (también detecta centros archivados).
+- Crea los centros con capacidad 1, eficiencia 100 % y coste horario 0, equivalentes a
+  los valores que tenían las rutas en Odoo 8.
+- Sin `--write` solo informa de lo que haría.
+
+Simulación (contra el destino del `config.json`):
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/create_production_lines.py \
+  --config migracion_pharmadus_8_18/config.json
+```
+
+Escritura real, después de realizar un backup:
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/create_production_lines.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --write
+```
+
+Opciones útiles:
+
+- `--codes LIN01,FUS01`: procesa solo esas líneas (comprueba el código antes de escribir).
+- `--tag-name "Otra etiqueta"`: cambia el nombre de la etiqueta agrupadora.
+- `--no-tag`: crea los centros sin etiqueta.
+- `--target-url http://127.0.0.1:18069`: sobrescribe la URL de destino, útil para probar
+  contra el proxy local de desarrollo cuando `odoo.pharmadus.com` no es alcanzable.
+- `--timeout 60`: timeout de las llamadas XML-RPC.
+
+## Añadir la línea de producción a las BoMs
+
+La línea de producción de Odoo 8 (`mrp.routing`) se representa en Odoo 18 como **una
+operación de la BoM** cuyo centro de trabajo es el de esa línea: el nombre de la operación es
+el nombre de la línea (por ejemplo `Linea 01`) y el centro de trabajo lleva su código
+(`LIN01`). Odoo 18 no tiene ningún campo de línea en la BoM, así que este es el sitio donde
+vive.
+
+El flujo va en dos fases porque no suele haber conectividad simultánea a SIGI y al Odoo 18.
+
+Fase 1, donde Odoo 8 sea alcanzable: exporta `producto -> primera línea` a un JSON. La
+"primera línea" se elige ordenando los **códigos de línea alfabéticamente** (`--order code`,
+que es el valor por defecto); con `--order id` se usa el id de `mrp.routing`.
+
+```bash
+python3 migracion_pharmadus_8_18/scripts/export_source_lines_map.py \
+  --config migracion_pharmadus_8_18/config.json \
+  --out sigi_lines_map.json --write
+```
+
+Fase 2, donde Odoo 18 sea alcanzable: añade a cada BoM la operación de la línea de su
+producto (secuencia 10, duración manual 0 minutos).
+
+```bash
+# simulación
+python3 migracion_pharmadus_8_18/scripts/add_production_line_operations.py \
+  --config migracion_pharmadus_8_18/config.json --map sigi_lines_map.json
+
+# escritura, guardando fichero de reversión
+python3 migracion_pharmadus_8_18/scripts/add_production_line_operations.py \
+  --config migracion_pharmadus_8_18/config.json --map sigi_lines_map.json \
+  --write --revert-out /tmp/add_line_operations_revert.json
+```
+
+Notas:
+
+- Es **idempotente**: si la BoM ya tiene una operación con ese nombre y ese centro de trabajo,
+  no crea otra.
+- Por defecto **elimina** las operaciones que ya tuviera la BoM (`--keep-existing` para no
+  hacerlo). Borrar una operación **no** elimina órdenes de trabajo: `mrp.workorder.operation_id`
+  no tiene `ondelete='cascade'`.
+- `--limit N` procesa solo las primeras N BoMs (pruebas) y `--target-url` permite apuntar al
+  proxy local de desarrollo cuando el destino del `config.json` no sea alcanzable.
+- Con `--write` se guarda un fichero de reversión con las operaciones creadas y las eliminadas.
+- Resultado en el entorno de desarrollo: 1.462 BoMs activas, 1.368 con línea en origen,
+  **1.368 operaciones creadas** (una por BoM), 6 BoMs con operaciones sustituidas y 94 BoMs sin
+  línea en origen que conservan sus operaciones de etapa.
+- El criterio de orden importa: con los códigos alfabéticos, respecto al orden por id cambian
+  de línea 149 plantillas de producto (159 BoMs en el entorno de desarrollo). Las líneas bajan
+  mucho en `REP01` (Reprocesado, que ordena casi al final) y suben en `LIN05` y `EMS01`.
+- Nota de rendimiento: borrar operaciones por el ORM es muy lento en esta base porque el modelo
+  hereda `mail.thread` y arrastra `mail_message` (millones de filas). Para borrados masivos
+  conviene hacerlo en SQL teniendo en cuenta las claves ajenas que apuntan a
+  `mrp.routing.workcenter` (`mrp_workorder`, `stock_move`, `mrp_bom_line`, `mrp_bom_byproduct`
+  y las dos tablas de relación).
